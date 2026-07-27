@@ -1,0 +1,4 @@
+2026-07-27T18:18:31.131Z - orderController: email = yeisonduqueossa@gmail.com, shipping = yes
+2026-07-27T18:18:31.137Z - Iniciando sendOrderConfirmation para: yeisonduqueossa@gmail.com
+2026-07-27T18:18:31.139Z - Transporter creado con user: yeisonduque1305@gmail.com
+2026-07-27T18:18:33.971Z - Email enviado exitosamente. MessageId: <45514944-4615-3056-6595-f31370ca0846@void.co>
