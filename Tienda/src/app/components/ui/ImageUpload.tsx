@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, DragEvent, ChangeEvent } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { api } from '../../services/api';
 
 interface ImageUploadProps {
   value: string;
@@ -43,18 +44,7 @@ export function ImageUpload({
       const formData = new FormData();
       formData.append('image', file);
       
-      const token = localStorage.getItem('void_token');
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: formData,
-      });
-      
-      const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.error || 'Error al subir');
+      const data = await api.uploadImage(formData);
       
       setPreview(data.url);
       onChange(data.url);

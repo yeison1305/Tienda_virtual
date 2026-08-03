@@ -83,23 +83,13 @@ export function CheckoutPage() {
         sessionStorage.setItem("void_checkout_fingerprint", fingerprint);
       }
 
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(user ? { Authorization: `Bearer ${localStorage.getItem("void_token")}` } : {}),
-        },
-        body: JSON.stringify({
-          items: orderItems,
-          guestEmail: user ? undefined : email,
-          shipping: { name, phone, address, city, department },
-          shippingAddressId: selectedAddressId || undefined,
-          requestKey,
-        }),
+      const data = await api.createOrder({
+        items: orderItems,
+        guestEmail: user ? undefined : email,
+        shipping: { name, phone, address, city, department },
+        shippingAddressId: selectedAddressId || undefined,
+        requestKey,
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al crear pedido");
 
       sessionStorage.removeItem("void_checkout_key");
       sessionStorage.removeItem("void_checkout_fingerprint");

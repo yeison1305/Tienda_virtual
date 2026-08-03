@@ -119,6 +119,31 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ email }),
     }),
+  createOrder: async (data: unknown): Promise<any> => {
+    const token = localStorage.getItem('void_token');
+    const res = await fetch(`${BASE}/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+    const payload = await res.json();
+    if (!res.ok) throw new Error(payload.error || 'Error al crear pedido');
+    return payload;
+  },
+  uploadImage: async (formData: FormData): Promise<{ url: string }> => {
+    const token = localStorage.getItem('void_token');
+    const res = await fetch(`${BASE}/upload`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    const payload = await res.json();
+    if (!res.ok) throw new Error(payload.error || 'Error al subir');
+    return payload;
+  },
   login: (email: string, password: string) =>
     request<{ user: { id: string; email: string; role: string }; token: string }>('/auth/login', {
       method: 'POST',
