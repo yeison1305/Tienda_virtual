@@ -1,6 +1,6 @@
 # VOID Culture — Tienda Virtual
 
-E-commerce moderno con panel de administración, sistema de newsletter masivo y pago contra entrega.
+E-commerce completo con panel de administración, sistema de newsletter masivo y pago contra entrega. Frontend en Vite + React, backend en Express + Prisma + PostgreSQL (Supabase).
 
 ---
 
@@ -10,16 +10,17 @@ E-commerce moderno con panel de administración, sistema de newsletter masivo y 
 |------|-------------|
 | **Frontend** | React 18, Vite 6, Tailwind CSS, React Router 6, Framer Motion, Lucide Icons |
 | **Backend** | Node.js 20+, Express 5, Prisma ORM, PostgreSQL (Supabase), Nodemailer (Gmail), JWT |
-| **Infra** | Supabase (DB + Storage), npm workspaces |
+| **Infra** | Supabase (DB + Storage), Vercel (frontend), Render (backend) |
 
 ---
 
 ## Features
 
-- **Catálogo**: Productos con variantes (talla, color, stock, SKU), categorías, precios tachados
+- **Catálogo**: Productos con variantes (talla, color, stock, SKU), categorías, colecciones, precios tachados
 - **Carrito & Checkout**: Persistencia local, flujo completo hasta confirmación
+- **Pedidos idempotentes**: Cada checkout genera una `requestKey` única en cliente; el backend rechaza duplicados (doble clic, refresco congelado) y valida stock con transacciones
 - **Auth**: Registro/Login JWT, roles `ADMIN` / `CUSTOMER`, refresh automático
-- **Panel Admin** (`/admin`):
+- **Panel Admin** (ruta no obvia `/oficina`):
   - Dashboard: métricas (ventas, pedidos, productos, usuarios) + últimos pedidos
   - Productos: tabla + modal CRUD con variantes dinámicas
   - Pedidos: lista, detalle expandible, cambio de estado (PENDING → PAID → SHIPPED → DELIVERED / CANCELLED)
@@ -27,6 +28,7 @@ E-commerce moderno con panel de administración, sistema de newsletter masivo y 
 - **Newsletter público**: Suscripción en footer, bienvenida automática
 - **Pagos**: Contra entrega — el cliente paga en efectivo al recibir (el esqueleto Wompi con webhook queda listo para integrar pagos en línea después)
 - **Email**: Confirmación de pedido + newsletter masivo (lotes de 50, rate-limit seguro)
+- **Responsive**: Layout completo para móvil (drawers, bottom-sheets, touch targets), escritorio con sidebars fijas
 
 ---
 
@@ -41,6 +43,7 @@ Tienda_virtual/
 │   │   │   ├── components/        # UI (shadcn), sections, auth
 │   │   │   ├── context/           # AuthContext, CartContext
 │   │   │   ├── services/api.ts    # Cliente tipado a /api
+│   │   │   ├── constants.ts       # ADMIN_PATH (ruta del panel admin)
 │   │   │   └── App.tsx            # Rutas + AdminRoute protection
 │   │   └── main.tsx
 │   ├── index.html
@@ -52,7 +55,10 @@ Tienda_virtual/
 │   │   ├── routes/                # adminRoutes, auth, products, orders, newsletter, webhooks
 │   │   ├── services/emailService.ts
 │   │   └── server.ts
-│   ├── prisma/schema.prisma       # Models: User, Product, Variant, Order, NewsletterSubscription
+│   ├── prisma/
+│   │   ├── schema.prisma          # Models: User, Product, Variant, Order, NewsletterSubscription
+│   │   └── migrations/            # Baseline aplicado + futuras migraciones
+│   ├── prisma.config.ts           # Config de Prisma CLI (usa DIRECT_URL para migraciones)
 │   └── package.json
 └── .gitignore
 ```
@@ -69,7 +75,7 @@ Tienda_virtual/
 ### 1. Clonar e instalar
 
 ```bash
-git clone https://github.com/TU_USUARIO/TU_REPO.git
+git clone https://github.com/yeison1305/Tienda_virtual.git
 cd Tienda_virtual
 
 # Frontend
@@ -81,9 +87,9 @@ cd ../backend && npm install
 
 ### 2. Variables de entorno
 
-**Backend** (`backend/.env`):
+**Backend** (`backend/.env` — copia de `backend/.env.example`):
 ```env
-DATABASE_URL="postgresql://user:pass@host:5432/db?pgbouncer=true"
+DATABASE_URL="postgresql://user:pass@host:6543/db?pgbouncer=true"
 DIRECT_URL="postgresql://user:pass@host:5432/db"
 
 JWT_SECRET="tu-secreto-largo-y-seguro"
@@ -100,7 +106,9 @@ WOMPI_PRIVATE_KEY=
 WOMPI_EVENTS_SECRET=
 ```
 
-**Frontend** (`Tienda/.env` opcional):
+> `DATABASE_URL` apunta al pooler de Supabase (`:6543` + `pgbouncer=true`), `DIRECT_URL` a la conexión directa (`:5432`) — necesaria para migraciones/DDL.
+
+**Frontend** (`Tienda/.env` opcional para dev):
 ```env
 VITE_API_URL=http://localhost:4000/api
 ```
@@ -131,7 +139,7 @@ cd Tienda && npm run dev     # http://localhost:5173
 UPDATE "User" SET role = 'ADMIN' WHERE email = 'tu@email.com';
 ```
 
-Login → redirige automático a `/admin`.
+Login → redirige automático al panel admin.
 
 ---
 
@@ -139,12 +147,12 @@ Login → redirige automático a `/admin`.
 
 | Ruta | Descripción |
 |------|-------------|
-| `/admin` | Dashboard: KPIs + últimos 5 pedidos |
-| `/admin/productos` | CRUD productos + variantes (modal) |
-| `/admin/pedidos` | Tabla con estados, detalle expandible |
-| `/admin/newsletter` | Editor + preview suscriptores + envío masivo |
+| `/oficina` | Dashboard: KPIs + últimos 5 pedidos |
+| `/oficina/productos` | CRUD productos + variantes (modal) |
+| `/oficina/pedidos` | Tabla con estados, detalle expandible |
+| `/oficina/newsletter` | Editor + preview suscriptores + envío masivo |
 
-**Protección**: `AdminRoute` verifica `user.role === 'ADMIN'` en cliente; `requireAdmin` valida JWT + rol en servidor.
+**Protección**: la ruta del panel se define en `Tienda/src/app/constants.ts` (`ADMIN_PATH`) y es intencionalmente no obvia. `AdminRoute` verifica `user.role === 'ADMIN'` en cliente; `requireAdmin` valida JWT + rol en servidor. **La URL no es seguridad**: el backend valida en cada request.
 
 ---
 
@@ -201,6 +209,51 @@ POST   /api/admin/newsletter/send
 
 ---
 
+## Deploy
+
+### Frontend — Vercel
+
+1. En [vercel.com](https://vercel.com) → *Add New Project* → importar el repo (privado funciona igual).
+2. **Root Directory: `Tienda`** → Vercel detecta Vite automáticamente (Build `npm run build`, Output `dist`).
+3. Environment Variables:
+   - `VITE_API_URL=https://<tu-backend>.onrender.com/api` ← **obligatoria** (sin ella el frontend busca `/api` en vercel.app y da 404)
+4. Deploy → URL tipo `https://tienda-virtual.vercel.app`. Esa URL va al backend como `FRONTEND_URL`.
+
+### Backend — Render
+
+1. En [render.com](https://render.com) → *New → Web Service* → conectar el repo.
+2. **Root Directory: `backend`** · Runtime **Node** (usa el `engines` del package.json).
+3. **Build Command**:
+   ```
+   npm install && npx prisma generate && npm run build
+   ```
+4. **Start Command**:
+   ```
+   npx prisma migrate deploy && node dist/server.js
+   ```
+   (El `migrate deploy` es idempotente: no-op si ya está aplicado — red de seguridad para cambios futuros de schema.)
+5. Environment Variables (mismas que `backend/.env`):
+   | Variable | Valor |
+   |----------|-------|
+   | `DATABASE_URL` | Supabase pooler `:6543` con `?pgbouncer=true` |
+   | `DIRECT_URL` | Supabase directa `:5432` |
+   | `SUPABASE_URL` | `https://<ref>.supabase.co` |
+   | `SUPABASE_SERVICE_KEY` | Service role key |
+   | `JWT_SECRET` | Generar: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+   | `EMAIL_USER` / `EMAIL_PASS` | Gmail + App Password |
+   | `EMAIL_FROM` | `"VOID Culture" <noreply@void.co>` |
+   | `FRONTEND_URL` | URL final de Vercel (para CORS) |
+   | `NODE_ENV` | `production` (Render inyecta `PORT` solo) |
+
+6. **Nota free tier**: Render duerme el servicio tras ~15 min de inactividad → el primer request tarda ~50 s (cold start). Si es problema, plan Starter.
+
+**Notas**:
+- CORS del backend acepta solo el origen de `FRONTEND_URL`; en dev es `http://localhost:5173`.
+- Las imágenes se guardan con URL absoluta de Supabase Storage, no requieren rewrites.
+- Los pedidos nacen `PENDING` (pago contra entrega): el admin los pasa a `PAID` al cobrar y luego `SHIPPED` / `DELIVERED`.
+
+---
+
 ## Scripts útiles
 
 ```bash
@@ -208,7 +261,6 @@ POST   /api/admin/newsletter/send
 cd Tienda
 npm run dev        # Vite dev server
 npm run build      # Producción → dist/
-npm run preview    # Preview build
 
 # Backend
 cd backend
@@ -218,45 +270,10 @@ npm start          # node dist/server.js
 
 # Prisma
 npx prisma studio
-npx prisma migrate dev
+npx prisma migrate deploy   # aplica migraciones en producción
 npx prisma db seed
 npx prisma generate
 ```
-
----
-
-## Deploy (frontend y backend separados)
-
-| Servicio | Frontend | Backend | DB |
-|----------|----------|---------|-----|
-| **Recomendado** | Vercel / Netlify | Railway / Render / Fly.io | Supabase (managed PG) |
-| **Build cmd** | `npm run build` | `npm run build` | — |
-| **Output** | `dist/` | `dist/` | — |
-
-### Backend (Railway / Render / Fly.io)
-
-1. Sube la carpeta `backend/` como servicio Node.
-2. Configura las variables de entorno (las mismas de `backend/.env`):
-   - `DATABASE_URL`, `DIRECT_URL` (Postgres de Supabase, `pgbouncer=true` en la primera)
-   - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`
-   - `JWT_SECRET` (obligatoria — genera una con `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
-   - `EMAIL_USER`, `EMAIL_PASS` (App Password de Gmail), `EMAIL_FROM`
-   - `FRONTEND_URL` = URL pública del frontend (para CORS)
-   - `PORT` (el que asigne la plataforma), `NODE_ENV=production`
-3. Build: `npm run build` · Start: `npm start` (usa `dist/`).
-4. La primera vez ejecuta las migraciones: `npx prisma migrate deploy`.
-
-### Frontend (Vercel / Netlify)
-
-1. Sube la carpeta `Tienda/`.
-2. En Vercel: Framework = Vite · Build = `npm run build` · Output = `dist`.
-   En Netlify: Build = `npm run build` · Publish directory = `dist`.
-3. Variable de entorno: `VITE_API_URL` = URL pública del backend (ej. `https://tu-backend.up.railway.app/api`). Si no la defines, el frontend asume `/api` en el mismo dominio.
-4. Las imágenes ya se guardan con URL absoluta de Supabase, no requieren rewrites.
-
-**Notas**:
-- CORS del backend acepta solo el origen de `FRONTEND_URL`; en dev es `http://localhost:5173`.
-- Los pedidos nacen `PENDING` (pago contra entrega): el admin los pasa a `PAID` al cobrar y luego `SHIPPED` / `DELIVERED`.
 
 ---
 
