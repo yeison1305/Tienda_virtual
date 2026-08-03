@@ -29,6 +29,7 @@ import { OrderDetail } from './pages/user/OrderDetail';
 import { AddressesPage } from './pages/user/AddressesPage';
 import { ChangePasswordPage } from './pages/user/ChangePasswordPage';
 import { useAuth } from './context/AuthContext';
+import { ADMIN_PATH } from './constants';
 
 function Home() {
   return (
@@ -49,7 +50,7 @@ function Home() {
 function LoginRedirect() {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen bg-[#080808] flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>;
-  if (user?.role === 'ADMIN') return <Navigate to="/admin" replace />;
+  if (user?.role === 'ADMIN') return <Navigate to={ADMIN_PATH} replace />;
   return <Navigate to="/" replace />;
 }
 
@@ -79,12 +80,12 @@ export default function App() {
 
 {/* Admin routes - protected by AdminRoute */}
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/productos" element={<AdminProducts />} />
-          <Route path="/admin/categorias" element={<AdminCategories />} />
-          <Route path="/admin/colecciones" element={<AdminCollections />} />
-          <Route path="/admin/pedidos" element={<AdminOrders />} />
-          <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+          <Route path={ADMIN_PATH} element={<AdminDashboard />} />
+          <Route path={`${ADMIN_PATH}/productos`} element={<AdminProducts />} />
+          <Route path={`${ADMIN_PATH}/categorias`} element={<AdminCategories />} />
+          <Route path={`${ADMIN_PATH}/colecciones`} element={<AdminCollections />} />
+          <Route path={`${ADMIN_PATH}/pedidos`} element={<AdminOrders />} />
+          <Route path={`${ADMIN_PATH}/newsletter`} element={<AdminNewsletter />} />
         </Route>
 
 {/* User routes - protected by UserRoute */}

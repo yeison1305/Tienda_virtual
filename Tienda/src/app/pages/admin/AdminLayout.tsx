@@ -3,14 +3,15 @@ import { Outlet, NavLink, useNavigate, Link } from 'react-router';
 import { LayoutDashboard, Package, ShoppingCart, LogOut, Shield, Mail, Layers, Tag, Menu, X, ArrowLeft } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useAuth } from '../../context/AuthContext';
+import { ADMIN_PATH } from '../../constants';
 
 const navItems = [
-  { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/admin/productos', icon: Package, label: 'Productos', end: false },
-  { to: '/admin/colecciones', icon: Layers, label: 'Colecciones', end: false },
-  { to: '/admin/categorias', icon: Tag, label: 'Categorías', end: false },
-  { to: '/admin/pedidos', icon: ShoppingCart, label: 'Pedidos', end: false },
-  { to: '/admin/newsletter', icon: Mail, label: 'Newsletter', end: false },
+  { to: ADMIN_PATH, icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: `${ADMIN_PATH}/productos`, icon: Package, label: 'Productos', end: false },
+  { to: `${ADMIN_PATH}/colecciones`, icon: Layers, label: 'Colecciones', end: false },
+  { to: `${ADMIN_PATH}/categorias`, icon: Tag, label: 'Categorías', end: false },
+  { to: `${ADMIN_PATH}/pedidos`, icon: ShoppingCart, label: 'Pedidos', end: false },
+  { to: `${ADMIN_PATH}/newsletter`, icon: Mail, label: 'Newsletter', end: false },
 ];
 
 export function AdminLayout() {

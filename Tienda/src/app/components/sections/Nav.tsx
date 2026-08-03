@@ -4,6 +4,7 @@ import { Menu, Search, ShoppingBag, X, User, LogOut, Shield, Package, MapPin, Se
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
+import { ADMIN_PATH } from "../../constants";
 
 export function Nav() {
   const [nav, setNav] = useState(false);
@@ -26,7 +27,7 @@ export function Nav() {
             <Search size={18} className="text-white/60 hover:text-white transition-colors" />
           </button>
           {isAdmin && (
-            <Link to="/admin" className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-violet-500/20 text-violet-400 text-xs font-medium uppercase tracking-wider rounded-lg hover:bg-violet-500/30 hover:text-violet-300 transition-all cursor-pointer">
+            <Link to={ADMIN_PATH} className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-violet-500/20 text-violet-400 text-xs font-medium uppercase tracking-wider rounded-lg hover:bg-violet-500/30 hover:text-violet-300 transition-all cursor-pointer">
               <Shield size={14} />
               Panel Admin
             </Link>
@@ -127,7 +128,7 @@ export function Nav() {
               </div>
               {isAdmin && (
                 <div className="my-6 border-t border-white/5 pt-6 hidden sm:block">
-                  <Link to="/admin" onClick={() => setNav(false)} className="flex items-center gap-2 px-3 py-2 bg-violet-500/20 text-violet-400 text-xs font-medium uppercase tracking-wider rounded-lg hover:bg-violet-500/30 hover:text-violet-300 transition-all">
+                  <Link to={ADMIN_PATH} onClick={() => setNav(false)} className="flex items-center gap-2 px-3 py-2 bg-violet-500/20 text-violet-400 text-xs font-medium uppercase tracking-wider rounded-lg hover:bg-violet-500/30 hover:text-violet-300 transition-all">
                     <Shield size={14} />
                     Panel Admin
                   </Link>
