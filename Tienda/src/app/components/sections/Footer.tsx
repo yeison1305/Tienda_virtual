@@ -24,7 +24,7 @@ export function Footer() {
       <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-xs text-white/15">© 2025 VOID</p>
         <div className="flex gap-4 text-xs text-white/15 flex-wrap justify-center">
-          <span>Visa</span><span>Mastercard</span><span>PSE</span><span>Nequi</span>
+          <span>Pago contra entrega</span>
         </div>
       </div>
     </footer>

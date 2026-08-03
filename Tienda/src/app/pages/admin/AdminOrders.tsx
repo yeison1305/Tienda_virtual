@@ -24,6 +24,7 @@ const statusLabels: Record<string, string> = {
 const tabs = [
   { key: 'ALL', label: 'Todos' },
   { key: 'PENDING', label: 'Pendientes' },
+  { key: 'PAID', label: 'Pagados' },
   { key: 'SHIPPED', label: 'Enviados' },
   { key: 'DELIVERED', label: 'Entregados' },
 ];
@@ -141,6 +142,20 @@ export function AdminOrders() {
                     {expandedId === order.id && (
                       <tr key={`${order.id}-detail`} className="border-b border-white/5">
                         <td colSpan={7} className="px-10 py-4 bg-white/[0.02]">
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="text-[11px] px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-medium uppercase tracking-wider">
+                              Pago contra entrega
+                            </span>
+                            {order.paymentStatus && (
+                              <span className={`text-[11px] px-2.5 py-1 rounded-full border font-medium uppercase tracking-wider ${
+                                order.paymentStatus === 'PAID'
+                                  ? 'border-blue-500/30 bg-blue-500/10 text-blue-400'
+                                  : 'border-yellow-500/30 bg-yellow-500/10 text-yellow-400'
+                              }`}>
+                                {order.paymentStatus === 'PAID' ? 'Cobrado' : 'Cobro pendiente'}
+                              </span>
+                            )}
+                          </div>
                           <div className="grid grid-cols-2 gap-6">
                             {/* Items */}
                             <div>
