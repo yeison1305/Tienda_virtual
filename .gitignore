@@ -39,8 +39,8 @@ coverage/
 # TypeScript cache
 *.tsbuildinfo
 
-# Prisma
-prisma/migrations/
+# Prisma (generated client is regenerable, migrations must stay tracked)
+prisma/generated/
 
 # Vite
 .vite/
@@ -53,3 +53,25 @@ prisma/migrations/
 
 # Netlify
 .netlify/
+
+# Backend test/temp files
+backend/*.js
+backend/*.json
+backend/email-debug.txt
+backend/*.ts
+!backend/prisma/seed.ts
+!backend/prisma.config.ts
+
+# Backend compiled artifacts (tsc outputs next to sources)
+backend/src/**/*.js
+backend/src/**/*.js.map
+backend/src/**/*.d.ts
+backend/src/**/*.d.ts.map
+backend/prisma/*.js
+backend/prisma/*.d.ts
+backend/prisma/*.js.map
+backend/prisma/generated/
+backend/*.bak
+
+# User-uploaded files (served at runtime, not source)
+backend/public/uploads/

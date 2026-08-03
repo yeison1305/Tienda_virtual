@@ -1,6 +1,6 @@
 # VOID Culture — Tienda Virtual
 
-E-commerce moderno con panel de administración, sistema de newsletter masivo y pasarela de pagos Wompi.
+E-commerce moderno con panel de administración, sistema de newsletter masivo y pago contra entrega.
 
 ---
 
@@ -10,7 +10,7 @@ E-commerce moderno con panel de administración, sistema de newsletter masivo y 
 |------|-------------|
 | **Frontend** | React 18, Vite 6, Tailwind CSS, React Router 6, Framer Motion, Lucide Icons |
 | **Backend** | Node.js 20+, Express 5, Prisma ORM, PostgreSQL (Supabase), Nodemailer (Gmail), JWT |
-| **Infra** | Supabase (DB + Auth helpers), pnpm workspaces |
+| **Infra** | Supabase (DB + Storage), npm workspaces |
 
 ---
 
@@ -25,7 +25,7 @@ E-commerce moderno con panel de administración, sistema de newsletter masivo y 
   - Pedidos: lista, detalle expandible, cambio de estado (PENDING → PAID → SHIPPED → DELIVERED / CANCELLED)
   - Newsletter: lista suscriptores, editor con preview, envío masivo con template HTML
 - **Newsletter público**: Suscripción en footer, bienvenida automática
-- **Pagos**: Integración Wompi (webhooks listos)
+- **Pagos**: Contra entrega — el cliente paga en efectivo al recibir (el esqueleto Wompi con webhook queda listo para integrar pagos en línea después)
 - **Email**: Confirmación de pedido + newsletter masivo (lotes de 50, rate-limit seguro)
 
 ---
@@ -63,8 +63,8 @@ Tienda_virtual/
 
 ### Prerrequisitos
 - Node.js 20+
-- pnpm (`npm i -g pnpm`)
-- Cuenta Supabase (PostgreSQL) + Gmail App Password para emails
+- npm
+- Cuenta Supabase (PostgreSQL + Storage) + Gmail App Password para emails
 
 ### 1. Clonar e instalar
 
@@ -73,10 +73,10 @@ git clone https://github.com/TU_USUARIO/TU_REPO.git
 cd Tienda_virtual
 
 # Frontend
-cd Tienda && pnpm install
+cd Tienda && npm install
 
 # Backend
-cd ../backend && pnpm install
+cd ../backend && npm install
 ```
 
 ### 2. Variables de entorno
@@ -118,10 +118,10 @@ npx prisma db seed   # crea categorías + 4 productos demo
 
 ```bash
 # Terminal 1: Backend
-cd backend && pnpm dev     # http://localhost:4000
+cd backend && npm run dev    # http://localhost:4000
 
 # Terminal 2: Frontend
-cd Tienda && pnpm dev      # http://localhost:5173
+cd Tienda && npm run dev     # http://localhost:5173
 ```
 
 ### 5. Primer admin
@@ -206,15 +206,15 @@ POST   /api/admin/newsletter/send
 ```bash
 # Frontend
 cd Tienda
-pnpm dev        # Vite dev server
-pnpm build      # Producción → dist/
-pnpm preview    # Preview build
+npm run dev        # Vite dev server
+npm run build      # Producción → dist/
+npm run preview    # Preview build
 
 # Backend
 cd backend
-pnpm dev        # tsx watch src/server.ts
-pnpm build      # tsc → dist/
-pnpm start      # node dist/server.js
+npm run dev        # tsx watch src/server.ts
+npm run build      # tsc → dist/
+npm start          # node dist/server.js
 
 # Prisma
 npx prisma studio
@@ -225,19 +225,38 @@ npx prisma generate
 
 ---
 
-## Deploy
+## Deploy (frontend y backend separados)
 
 | Servicio | Frontend | Backend | DB |
 |----------|----------|---------|-----|
 | **Recomendado** | Vercel / Netlify | Railway / Render / Fly.io | Supabase (managed PG) |
-| **Build cmd** | `pnpm build` | `pnpm build` | — |
+| **Build cmd** | `npm run build` | `npm run build` | — |
 | **Output** | `dist/` | `dist/` | — |
-| **Env vars** | `VITE_API_URL` | todas las de `.env` | `DATABASE_URL` |
+
+### Backend (Railway / Render / Fly.io)
+
+1. Sube la carpeta `backend/` como servicio Node.
+2. Configura las variables de entorno (las mismas de `backend/.env`):
+   - `DATABASE_URL`, `DIRECT_URL` (Postgres de Supabase, `pgbouncer=true` en la primera)
+   - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`
+   - `JWT_SECRET` (obligatoria — genera una con `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+   - `EMAIL_USER`, `EMAIL_PASS` (App Password de Gmail), `EMAIL_FROM`
+   - `FRONTEND_URL` = URL pública del frontend (para CORS)
+   - `PORT` (el que asigne la plataforma), `NODE_ENV=production`
+3. Build: `npm run build` · Start: `npm start` (usa `dist/`).
+4. La primera vez ejecuta las migraciones: `npx prisma migrate deploy`.
+
+### Frontend (Vercel / Netlify)
+
+1. Sube la carpeta `Tienda/`.
+2. En Vercel: Framework = Vite · Build = `npm run build` · Output = `dist`.
+   En Netlify: Build = `npm run build` · Publish directory = `dist`.
+3. Variable de entorno: `VITE_API_URL` = URL pública del backend (ej. `https://tu-backend.up.railway.app/api`). Si no la defines, el frontend asume `/api` en el mismo dominio.
+4. Las imágenes ya se guardan con URL absoluta de Supabase, no requieren rewrites.
 
 **Notas**:
-- Backend: asegurar `FRONTEND_URL` en CORS
-- Frontend: `VITE_API_URL` debe apuntar al backend productivo
-- Supabase: habilitar `pgbouncer` en `DATABASE_URL` para serverless
+- CORS del backend acepta solo el origen de `FRONTEND_URL`; en dev es `http://localhost:5173`.
+- Los pedidos nacen `PENDING` (pago contra entrega): el admin los pasa a `PAID` al cobrar y luego `SHIPPED` / `DELIVERED`.
 
 ---
 
