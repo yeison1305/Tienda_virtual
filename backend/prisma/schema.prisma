@@ -40,6 +40,7 @@ model Category {
   id       String    @id @default(cuid())
   name     String
   slug     String    @unique
+  image    String?
   products Product[]
 }
 
@@ -54,7 +55,19 @@ model Product {
   images         String[]
   active         Boolean          @default(true)
   variants       ProductVariant[]
+  collections    Collection[]     @relation("ProductCollections")
   createdAt      DateTime         @default(now())
+}
+
+model Collection {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  tag         String?
+  description String?
+  image       String?
+  products    Product[] @relation("ProductCollections")
+  createdAt   DateTime  @default(now())
 }
 
 model ProductVariant {
@@ -64,7 +77,6 @@ model ProductVariant {
   size       String
   color      String?
   stock      Int         @default(0)
-  sku        String      @unique
   orderItems OrderItem[]
 }
 
@@ -82,6 +94,9 @@ model Order {
   total              Int           // En centavos COP
   paymentStatus      PaymentStatus @default(PENDING)
   wompiTransactionId String?
+  addressId          String?
+  address            Address?      @relation(fields: [addressId], references: [id])
+  requestKey         String?       @unique
   items              OrderItem[]
   createdAt          DateTime      @default(now())
 }
@@ -97,13 +112,17 @@ model OrderItem {
 }
 
 model Address {
-  id         String @id @default(cuid())
-  userId     String
-  user       User   @relation(fields: [userId], references: [id])
-  line1      String
-  city       String
-  department String
-  phone      String
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  line1         String
+  city          String
+  department    String
+  phone         String
+  isDefault     Boolean  @default(false)
+  recipientName String?
+  createdAt     DateTime @default(now())
+  orders        Order[]
 }
 
 model NewsletterSubscription {

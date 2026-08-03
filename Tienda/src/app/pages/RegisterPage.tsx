@@ -13,6 +13,7 @@ export function RegisterPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
 
     if (password !== confirm) {

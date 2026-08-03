@@ -3,7 +3,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../server';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'void-dev-secret-change-in-prod';
+const JWT_SECRET = process.env.JWT_SECRET ?? '';
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET no está definida. Configúrala en el archivo .env');
+}
 const JWT_EXPIRES = '7d';
 
 function generateToken(userId: string) {
@@ -88,6 +91,10 @@ export const me = async (req: Request, res: Response) => {
     }
 
     const token = authHeader.split(' ')[1];
+    if (!token) {
+      res.status(401).json({ error: 'No autenticado' });
+      return;
+    }
     const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
 
     const user = await prisma.user.findUnique({

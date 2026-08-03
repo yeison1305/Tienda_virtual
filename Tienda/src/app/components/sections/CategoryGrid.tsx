@@ -16,11 +16,12 @@ export function CategoryGrid() {
   const { categories: apiCategories, loading } = useCategories();
 
   const hasApi = apiCategories.length > 0;
-  const display = hasApi
+  const allCategories = hasApi
     ? apiCategories.map((c) => ({
         name: c.name,
         slug: c.slug,
-        img: IMG_MAP[c.slug] ?? ASSETS.catAccesorios,
+        // Use API image if exists, otherwise fallback to static map
+        img: c.image || IMG_MAP[c.slug] || ASSETS.catAccesorios,
       }))
     : CATEGORIES.map((c) => ({
         name: c.name,
@@ -28,17 +29,20 @@ export function CategoryGrid() {
         img: c.img,
       }));
 
+  // Home: max 4 categories, CategoriesPage shows all
+  const display = allCategories.slice(0, 4);
+
   return (
     <section className="py-20 px-4 md:px-8 lg:px-10">
       <div className="flex justify-between items-end mb-10">
         <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight">
           Categorías
         </h2>
-        <span className="text-white/30 text-xs tracking-widest uppercase cursor-pointer hover:text-white transition-colors">
-          Ver todas →
-        </span>
+        <Link to="/categorias" className="text-white/30 text-xs tracking-widest uppercase cursor-pointer hover:text-white transition-colors">
+          Ver todas &rarr;
+        </Link>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
         {(loading ? CATEGORIES.map((c) => ({ ...c, slug: c.name.toLowerCase() })) : display).map((c, i) => (
           <Link to={`/categoria/${c.slug}`} key={c.name}>
             <motion.div

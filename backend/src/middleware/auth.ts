@@ -2,7 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../server';
 
-const JWT_SECRET: string = (process.env.JWT_SECRET ?? 'void-dev-secret-change-in-prod') as string;
+const JWT_SECRET = process.env.JWT_SECRET ?? '';
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET no está definida. Configúrala en el archivo .env');
+}
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -13,6 +16,10 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     }
 
     const token = authHeader.split(' ')[1];
+    if (!token) {
+      res.status(401).json({ error: 'No autorizado' });
+      return;
+    }
     const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
 
     const user = await prisma.user.findUnique({
@@ -36,12 +43,14 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
-      const user = await prisma.user.findUnique({
-        where: { id: payload.sub }
-      });
-      if (user) {
-        (req as any).user = user;
+      if (token) {
+        const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
+        const user = await prisma.user.findUnique({
+          where: { id: payload.sub }
+        });
+        if (user) {
+          (req as any).user = user;
+        }
       }
     }
   } catch (error) {

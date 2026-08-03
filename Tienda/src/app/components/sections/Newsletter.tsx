@@ -8,6 +8,7 @@ export function Newsletter() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (status === "loading") return;
     setStatus("loading");
     try {
       const res = await api.subscribeNewsletter(email);

@@ -14,7 +14,7 @@ export interface CartItem {
 
 interface CartCtx {
   items: CartItem[];
-  addItem: (product: ApiProduct, opts?: { size?: string; color?: string }) => void;
+  addItem: (product: ApiProduct, opts?: { size?: string; color?: string; quantity?: number }) => void;
   removeItem: (index: number) => void;
   updateQuantity: (index: number, quantity: number) => void;
   clearCart: () => void;
@@ -43,19 +43,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(loadCart);
 
   const addItem = useCallback(
-    (product: ApiProduct, opts?: { size?: string; color?: string }) => {
+    (product: ApiProduct, opts?: { size?: string; color?: string; quantity?: number }) => {
       setItems((prev) => {
         const key = `${product.id}-${opts?.size ?? ''}-${opts?.color ?? ''}`;
         const existing = prev.find(
           (i) => `${i.productId}-${i.size ?? ''}-${i.color ?? ''}` === key,
         );
         let next: CartItem[];
+        const qty = opts?.quantity ?? 1;
         if (existing) {
           next = prev.map((i) =>
-            i === existing ? { ...i, quantity: i.quantity + 1 } : i,
+            i === existing ? { ...i, quantity: i.quantity + qty } : i,
           );
         } else {
-          const variant = product.variants[0];
+          // Find the correct variant based on selected size/color
+          const variant = product.variants.find(
+            (v) =>
+              (!opts?.size || v.size === opts.size) &&
+              (!opts?.color || v.color === opts.color) &&
+              v.stock > 0,
+          ) || product.variants[0];
+
           next = [
             ...prev,
             {
@@ -66,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
               image: product.images[0] ?? '',
               size: opts?.size ?? variant?.size,
               color: opts?.color ?? variant?.color,
-              quantity: 1,
+              quantity: qty,
             },
           ];
         }

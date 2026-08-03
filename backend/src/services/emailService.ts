@@ -1,9 +1,4 @@
 import nodemailer from 'nodemailer';
-import fs from 'fs';
-
-function logDebug(msg: string) {
-  fs.appendFileSync('email-debug.txt', new Date().toISOString() + ' - ' + msg + '\n');
-}
 
 const FROM = process.env.EMAIL_FROM || '"VOID Culture" <noreply@void.co>';
 
@@ -111,26 +106,21 @@ function buildOrderHtml(data: OrderEmailData): string {
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  logDebug('Iniciando sendOrderConfirmation para: ' + data.customerEmail);
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    logDebug('Error: Falta EMAIL_USER o EMAIL_PASS. USER: ' + process.env.EMAIL_USER);
     console.log('[Email] Nodemailer no configurado (Faltan variables EMAIL_USER o EMAIL_PASS) — email no enviado a', data.customerEmail);
     return;
   }
 
   try {
     const transporter = getTransporter();
-    logDebug('Transporter creado con user: ' + process.env.EMAIL_USER);
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM || FROM,
       to: data.customerEmail,
       subject: `Pedido confirmado — VOID #${data.orderId.slice(-8).toUpperCase()}`,
       html: buildOrderHtml(data),
     });
-    logDebug('Email enviado exitosamente. MessageId: ' + info.messageId);
     console.log('[Email] Confirmación enviada a', data.customerEmail);
   } catch (error: any) {
-    logDebug('Error capturado: ' + error.message);
     console.error('[Email] Error enviando confirmación:', error);
   }
 }

@@ -2,11 +2,10 @@ import { useParams, Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
 import { useProducts } from "../hooks/useProducts";
-import { useCategories } from "../hooks/useCategories";
-import { fmt } from "../data";
 import { useState, useMemo } from "react";
 import { Heart } from "lucide-react";
-import type { ApiProduct } from "../services/api";
+import { fmt } from "../data";
+import type { ApiProduct } from "../../services/api";
 
 function discountPct(p: ApiProduct) {
   if (!p.compareAtPrice || p.compareAtPrice === 0) return null;
@@ -24,27 +23,21 @@ function variantColors(p: ApiProduct): string[] {
     .map((v) => v.color!);
 }
 
-export function CategoryPage() {
+export function CollectionPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { categories } = useCategories();
-  const { products, loading } = useProducts({ category: slug });
+  const { products, loading } = useProducts({ collection: slug });
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [sort, setSort] = useState('newest');
 
-  const category = categories.find((c) => c.slug === slug);
-  const categoryName = category?.name ?? slug;
+  const collectionName = slug?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
 
-  // Apply sort client-side
   const sortedProducts = useMemo(() => {
     return [...products].sort((a, b) => {
-      const priceA = a.variants[0]?.price || a.price;
-      const priceB = b.variants[0]?.price || b.price;
       switch (sort) {
-        case 'price_asc': return priceA - priceB;
-        case 'price_desc': return priceB - priceA;
+        case 'price_asc': return a.price - b.price;
+        case 'price_desc': return b.price - a.price;
         case 'name_asc': return a.name.localeCompare(b.name);
         case 'name_desc': return b.name.localeCompare(a.name);
-        case 'newest':
         default: return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
     });
@@ -52,14 +45,44 @@ export function CategoryPage() {
 
   return (
     <main className="min-h-screen px-4 md:px-8 lg:px-10 pt-28 pb-20">
-      <Link to="/" className="inline-flex items-center gap-2 text-xs text-white/40 hover:text-white transition-colors mb-10 tracking-widest uppercase">
+      <Link to="/colecciones" className="inline-flex items-center gap-2 text-xs text-white/40 hover:text-white transition-colors mb-10 tracking-widest uppercase">
         <ArrowLeft size={14} />
         Volver
       </Link>
 
       <div className="mb-10">
-        <p className="text-white/30 tracking-[0.4em] text-xs uppercase mb-2">Categoría</p>
-        <h1 className="text-4xl md:text-5xl font-black uppercase">{categoryName}</h1>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-white/30 tracking-[0.4em] text-xs uppercase mb-2">Colección</p>
+            <h1 className="text-4xl md:text-5xl font-black uppercase">{collectionName}</h1>
+          </div>
+          <div className="hidden lg:block">
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value)}
+              className="bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 rounded-lg appearance-none cursor-pointer"
+            >
+              <option value="newest">Más nuevos</option>
+              <option value="price_asc">Precio: menor a mayor</option>
+              <option value="price_desc">Precio: mayor a menor</option>
+              <option value="name_asc">Nombre: A-Z</option>
+              <option value="name_desc">Nombre: Z-A</option>
+            </select>
+          </div>
+        </div>
+        <div className="lg:hidden">
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value)}
+            className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 rounded-lg appearance-none cursor-pointer"
+          >
+            <option value="newest">Más nuevos</option>
+            <option value="price_asc">Precio: menor a mayor</option>
+            <option value="price_desc">Precio: mayor a menor</option>
+            <option value="name_asc">Nombre: A-Z</option>
+            <option value="name_desc">Nombre: Z-A</option>
+          </select>
+        </div>
       </div>
 
       {loading && (
@@ -76,19 +99,19 @@ export function CategoryPage() {
         </div>
       )}
 
-      {!loading && products.length === 0 && (
+      {!loading && sortedProducts.length === 0 && (
         <div className="text-center py-20">
-          <p className="text-white/30 text-lg mb-6">No hay productos en esta categoría</p>
-          <Link to="/" className="bg-white text-black px-8 py-4 text-xs tracking-[0.3em] uppercase font-black hover:bg-white/90 transition-colors inline-block cursor-pointer">
-            Explorar otros productos
+          <p className="text-white/30 text-lg mb-6">No hay productos en esta colección</p>
+          <Link to="/colecciones" className="bg-white text-black px-8 py-4 text-xs tracking-[0.3em] uppercase font-black hover:bg-white/90 transition-colors inline-block cursor-pointer">
+            Explorar otras colecciones
           </Link>
         </div>
       )}
 
-      {!loading && products.length > 0 && (
+      {!loading && sortedProducts.length > 0 && (
         <>
           <div className="flex items-center justify-between mb-6">
-            <p className="text-white/40 text-sm">{products.length} productos</p>
+            <p className="text-white/40 text-sm">{sortedProducts.length} productos</p>
             <select
               value={sort}
               onChange={e => setSort(e.target.value)}
@@ -125,7 +148,9 @@ export function CategoryPage() {
                   <button
                     onClick={() =>
                       setWishlist((w) =>
-                        w.includes(p.id) ? w.filter((x) => x !== p.id) : [...w, p.id],
+                        w.includes(p.id)
+                          ? w.filter((x) => x !== p.id)
+                          : [...w, p.id],
                       )
                     }
                     className="absolute top-3 right-3 p-2 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full cursor-pointer"

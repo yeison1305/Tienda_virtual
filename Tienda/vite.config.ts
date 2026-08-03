@@ -23,6 +23,10 @@ export default defineConfig({
         target: 'http://localhost:4000',
         changeOrigin: true,
       },
+      '/storage/v1/object/public/uploads': {
+        target: 'https://gsqufinekgjjicqxosxg.supabase.co',
+        changeOrigin: true,
+      },
     },
   },
   plugins: [

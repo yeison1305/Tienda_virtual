@@ -32,6 +32,7 @@ export function AdminNewsletter() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (sending) return;
     setError('');
     setResult(null);
     setSending(true);

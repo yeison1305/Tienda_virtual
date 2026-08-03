@@ -2,9 +2,9 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { Heart } from "lucide-react";
 import { useProducts } from "../../hooks/useProducts";
-import { useCart } from "../../context/CartContext";
 import { PRODUCTS, fmt } from "../../data";
 import type { ApiProduct } from "../../services/api";
+import { Link } from "react-router";
 
 function productImg(p: ApiProduct) {
   return p.images[0] ?? "";
@@ -35,8 +35,7 @@ function variantColors(p: ApiProduct): string[] {
 }
 
 export function ProductGrid() {
-  const { products: apiProducts, loading } = useProducts();
-  const { addItem } = useCart();
+  const { products: apiProducts, loading } = useProducts({ collection: 'best-sellers', limit: 4 });
   const [wishlist, setWishlist] = useState<string[]>([]);
 
   const hasApiProducts = apiProducts.length > 0;
@@ -48,9 +47,9 @@ export function ProductGrid() {
         <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight">
           Productos
         </h2>
-        <button className="text-xs tracking-widest uppercase text-white/40 hover:text-white transition-colors border-b border-white/20 pb-1">
+        <Link to="/categorias" className="text-xs tracking-widest uppercase text-white/40 hover:text-white transition-colors border-b border-white/20 pb-1">
           Ver todos
-        </button>
+        </Link>
       </div>
 
       {loading && (
@@ -76,46 +75,49 @@ export function ProductGrid() {
               transition={{ duration: 0.25 }}
               className="group bg-[#181818] overflow-hidden"
             >
-              <div className="relative aspect-[3/4] overflow-hidden">
-                <img
-                  src={productImg(p)}
-                  alt={p.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-95"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent" />
-                {discountPct(p) && (
-                  <div className="absolute top-3 left-3 bg-white text-black text-[9px] font-black tracking-widest uppercase px-2 py-1">
-                    -{discountPct(p)}%
-                  </div>
-                )}
-                <button
-                  onClick={() =>
-                    setWishlist((w) =>
-                      w.includes(p.id)
-                        ? w.filter((x) => x !== p.id)
-                        : [...w, p.id],
-                    )
-                  }
-                  className="absolute top-3 right-3 p-2 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full"
-                >
-                  <Heart
-                    size={13}
-                    className={`text-white ${wishlist.includes(p.id) ? "fill-white" : ""}`}
+              <Link to={`/producto/${p.id}`} className="block">
+                <div className="relative aspect-[3/4] overflow-hidden">
+                  <img
+                    src={productImg(p)}
+                    alt={p.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-95"
                   />
-                </button>
-                <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 p-3">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent" />
+                  {discountPct(p) && (
+                    <div className="absolute top-3 left-3 bg-white text-black text-[9px] font-black tracking-widest uppercase px-2 py-1">
+                      -{discountPct(p)}%
+                    </div>
+                  )}
                   <button
-                    onClick={() => addItem(p)}
-                    className="w-full py-3 bg-white text-black text-xs tracking-[0.2em] uppercase font-black cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setWishlist((w) =>
+                        w.includes(p.id)
+                          ? w.filter((x) => x !== p.id)
+                          : [...w, p.id],
+                      )
+                    }}
+                    className="absolute top-3 right-3 p-2 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full"
                   >
-                    + Carrito
+                    <Heart
+                      size={13}
+                      className={`text-white ${wishlist.includes(p.id) ? "fill-white" : ""}`}
+                    />
                   </button>
+                  <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 p-3">
+                    <span className="w-full py-3 bg-white text-black text-xs tracking-[0.2em] uppercase font-black cursor-pointer text-center block">
+                      Ver detalle
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </Link>
               <div className="p-4">
-                <p className="text-xs font-bold uppercase tracking-wide mb-2">
-                  {p.name}
-                </p>
+                <Link to={`/producto/${p.id}`} className="block">
+                  <p className="text-xs font-bold uppercase tracking-wide mb-2">
+                    {p.name}
+                  </p>
+                </Link>
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2 items-center">
                     <span className="text-sm font-bold">{productPrice(p)}</span>
@@ -152,41 +154,47 @@ export function ProductGrid() {
               transition={{ duration: 0.25 }}
               className="group bg-[#181818] overflow-hidden"
             >
-              <div className="relative aspect-[3/4] overflow-hidden">
-                <img
-                  src={p.img}
-                  alt={p.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-95"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent" />
-                <div className="absolute top-3 left-3 bg-white text-black text-[9px] font-black tracking-widest uppercase px-2 py-1">
-                  -{Math.round((1 - p.price / p.original) * 100)}%
-                </div>
-                <button
-                  onClick={() =>
-                    setWishlist((w) =>
-                      w.includes(String(p.id))
-                        ? w.filter((x) => x !== String(p.id))
-                        : [...w, String(p.id)],
-                    )
-                  }
-                  className="absolute top-3 right-3 p-2 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full"
-                >
-                  <Heart
-                    size={13}
-                    className={`text-white ${wishlist.includes(String(p.id)) ? "fill-white" : ""}`}
+              <Link to={`/producto/${p.id}`} className="block">
+                <div className="relative aspect-[3/4] overflow-hidden">
+                  <img
+                    src={p.img}
+                    alt={p.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-95"
                   />
-                </button>
-                <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 p-3">
-                  <button className="w-full py-3 bg-white text-black text-xs tracking-[0.2em] uppercase font-black cursor-pointer">
-                    + Carrito
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent" />
+                  <div className="absolute top-3 left-3 bg-white text-black text-[9px] font-black tracking-widest uppercase px-2 py-1">
+                    -{Math.round((1 - p.price / p.original) * 100)}%
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setWishlist((w) =>
+                        w.includes(String(p.id))
+                          ? w.filter((x) => x !== String(p.id))
+                          : [...w, String(p.id)],
+                      )
+                    }}
+                    className="absolute top-3 right-3 p-2 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full"
+                  >
+                    <Heart
+                      size={13}
+                      className={`text-white ${wishlist.includes(String(p.id)) ? "fill-white" : ""}`}
+                    />
                   </button>
+                  <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 p-3">
+                    <span className="w-full py-3 bg-white text-black text-xs tracking-[0.2em] uppercase font-black cursor-pointer text-center block">
+                      Ver detalle
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </Link>
               <div className="p-4">
-                <p className="text-xs font-bold uppercase tracking-wide mb-2">
-                  {p.name}
-                </p>
+                <Link to={`/producto/${p.id}`} className="block">
+                  <p className="text-xs font-bold uppercase tracking-wide mb-2">
+                    {p.name}
+                  </p>
+                </Link>
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2 items-center">
                     <span className="text-sm font-bold">{fmt(p.price)}</span>

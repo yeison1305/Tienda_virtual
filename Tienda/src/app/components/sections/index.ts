@@ -7,6 +7,5 @@ export * from './PromoBanner';
 export * from './CollectionsTabs';
 export * from './Benefits';
 export * from './InspirationGrid';
-export * from './Reviews';
 export * from './Newsletter';
 export * from './Footer';

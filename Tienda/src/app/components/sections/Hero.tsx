@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { Link } from "react-router";
 import { ASSETS } from "../../data";
 
 export function Hero() {
@@ -16,12 +17,12 @@ export function Hero() {
             VOID<br /><span className="text-white/20">CULTURE</span>
           </h1>
           <div className="flex flex-col sm:flex-row gap-4 mt-8 md:mt-10">
-            <button className="bg-white text-black px-10 py-4 text-xs tracking-[0.3em] uppercase font-black hover:bg-white/90 transition-colors">
+            <Link to="/categorias" className="bg-white text-black px-10 py-4 text-xs tracking-[0.3em] uppercase font-black hover:bg-white/90 transition-colors">
               Comprar ahora
-            </button>
-            <button className="border border-white/30 text-white px-10 py-4 text-xs tracking-[0.3em] uppercase font-medium hover:border-white transition-colors">
+            </Link>
+            <Link to="/colecciones" className="border border-white/30 text-white px-10 py-4 text-xs tracking-[0.3em] uppercase font-medium hover:border-white transition-colors">
               Nueva colección
-            </button>
+            </Link>
           </div>
         </motion.div>
       </div>

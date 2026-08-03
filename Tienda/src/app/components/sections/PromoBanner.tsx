@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { ASSETS } from "../../data";
 
 export function PromoBanner() {
@@ -9,9 +10,9 @@ export function PromoBanner() {
         <div className="max-w-xl">
           <p className="text-white/30 tracking-[0.5em] text-xs uppercase mb-4 md:mb-6">Drop Especial</p>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase leading-none mb-6 md:mb-8 tracking-tight">Descubre la colección que define tu estilo</h2>
-          <button className="bg-white text-black px-8 md:px-10 py-3 md:py-4 text-xs tracking-[0.3em] uppercase font-black hover:bg-white/90 transition-colors">
+          <Link to="/coleccion/nueva-coleccion" className="bg-white text-black px-8 md:px-10 py-3 md:py-4 text-xs tracking-[0.3em] uppercase font-black hover:bg-white/90 transition-colors inline-block">
             Ver colección
-          </button>
+          </Link>
         </div>
       </div>
     </section>
