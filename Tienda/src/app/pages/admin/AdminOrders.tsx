@@ -65,7 +65,7 @@ export function AdminOrders() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-white/[0.03] border border-white/10 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-white/[0.03] border border-white/10 p-1 rounded-xl w-full lg:w-fit overflow-x-auto whitespace-nowrap">
         {tabs.map(t => (
           <button
             key={t.key}
@@ -156,7 +156,7 @@ export function AdminOrders() {
                               </span>
                             )}
                           </div>
-                          <div className="grid grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Items */}
                             <div>
                               <p className="text-[11px] text-white/30 uppercase tracking-widest mb-3">Artículos</p>

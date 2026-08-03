@@ -98,7 +98,7 @@ export function ProductGrid() {
                           : [...w, p.id],
                       )
                     }}
-                    className="absolute top-3 right-3 p-2 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full"
+                    className="absolute top-3 right-3 p-2.5 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full"
                   >
                     <Heart
                       size={13}
@@ -175,7 +175,7 @@ export function ProductGrid() {
                           : [...w, String(p.id)],
                       )
                     }}
-                    className="absolute top-3 right-3 p-2 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full"
+                    className="absolute top-3 right-3 p-2.5 bg-black/40 backdrop-blur-sm hover:bg-black/70 transition-colors z-10 rounded-full"
                   >
                     <Heart
                       size={13}

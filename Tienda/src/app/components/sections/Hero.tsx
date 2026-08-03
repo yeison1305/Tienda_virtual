@@ -4,7 +4,7 @@ import { ASSETS } from "../../data";
 
 export function Hero() {
   return (
-    <section className="h-screen relative overflow-hidden">
+    <section className="h-svh relative overflow-hidden">
       <img src={ASSETS.heroC} alt="VOID collection" className="absolute inset-0 w-full h-full object-cover opacity-60" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-[#080808]" />
       <div className="absolute inset-0 flex flex-col justify-end pb-24 px-4 md:px-8 lg:px-10">

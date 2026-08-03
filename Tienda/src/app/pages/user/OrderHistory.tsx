@@ -69,23 +69,23 @@ export function OrderHistory() {
             <Link
               key={order.id}
               to={`/perfil/pedidos/${order.id}`}
-              className="flex items-center justify-between p-6 hover:bg-white/[0.02] transition-colors"
+              className="flex items-center justify-between p-4 md:p-6 hover:bg-white/[0.02] transition-colors"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 bg-white/5 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="flex items-center gap-4 min-w-0 flex-1">
+                <div className="w-16 h-20 md:w-20 md:h-20 bg-white/5 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
                   {order.items[0]?.variant?.product?.images?.[0] ? (
                     <img src={order.items[0].variant.product.images[0]} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <Package size={28} className="text-white/20" />
                   )}
                 </div>
-                <div>
-                  <p className="font-medium">{getOrderNumber(order.id)}</p>
-                  <p className="text-xs text-white/30">{new Date(order.createdAt).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                  <p className="text-sm text-white/40 mt-1">{order.items.length} producto{order.items.length > 1 ? 's' : ''} · {fmt(order.total)}</p>
+                <div className="min-w-0">
+                  <p className="font-medium truncate">{getOrderNumber(order.id)}</p>
+                  <p className="text-xs text-white/30 truncate">{new Date(order.createdAt).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                  <p className="text-sm text-white/40 mt-1 truncate">{order.items.length} producto{order.items.length > 1 ? 's' : ''} · {fmt(order.total)}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 shrink-0">
                 <span className={`text-[11px] px-3 py-1 rounded-full border font-medium ${statusColors[order.status] || 'bg-white/10 text-white/40 border-white/10'}`}>
                   {statusLabels[order.status] || order.status}
                 </span>

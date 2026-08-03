@@ -331,7 +331,7 @@ export function AdminProducts() {
                 </div>
                 <div className="space-y-3">
                   {form.variants.map((v, i) => (
-                    <div key={i} className="grid grid-cols-[1fr_1fr_80px_40px] gap-2 items-center">
+                    <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] sm:grid-cols-[1fr_1fr_80px_40px] gap-2 items-center min-w-0">
                       <input type="hidden" value={v.id || ''} onChange={e => updateVariant(i, 'id', e.target.value)} />
                       <select value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)}
                         className="bg-white/5 border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-white/30 rounded-lg appearance-none cursor-pointer">

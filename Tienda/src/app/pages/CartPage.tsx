@@ -37,18 +37,18 @@ export function CartPage() {
                     {item.color && <p className="text-xs text-white/40">Color: {item.color}</p>}
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => updateQuantity(idx, item.quantity - 1)} className="text-white/40 hover:text-white cursor-pointer">
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => updateQuantity(idx, item.quantity - 1)} className="p-2 text-white/40 hover:text-white cursor-pointer" aria-label="Disminuir cantidad">
                         <Minus size={14} />
                       </button>
-                      <span className="text-sm font-bold">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(idx, item.quantity + 1)} className="text-white/40 hover:text-white cursor-pointer">
+                      <span className="text-sm font-bold min-w-[1.5rem] text-center">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(idx, item.quantity + 1)} className="p-2 text-white/40 hover:text-white cursor-pointer" aria-label="Aumentar cantidad">
                         <Plus size={14} />
                       </button>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
                       <span className="text-sm font-bold">{fmt(item.price * item.quantity)}</span>
-                      <button onClick={() => removeItem(idx)} className="text-white/20 hover:text-red-400 transition-colors cursor-pointer">
+                      <button onClick={() => removeItem(idx)} className="p-2 text-white/20 hover:text-red-400 transition-colors cursor-pointer" aria-label="Eliminar artículo">
                         <Trash2 size={14} />
                       </button>
                     </div>

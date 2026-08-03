@@ -100,22 +100,22 @@ export function ProfileDashboard() {
         ) : (
           <div className="divide-y divide-white/5">
             {recentOrders.map(order => (
-              <Link key={order.id} to={`/perfil/pedidos/${order.id}`} className="px-6 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-white/5 rounded-lg flex items-center justify-center overflow-hidden">
+              <Link key={order.id} to={`/perfil/pedidos/${order.id}`} className="px-4 md:px-6 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <div className="w-16 h-16 bg-white/5 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
                     {order.items[0]?.variant?.product?.images?.[0] ? (
                       <img src={order.items[0].variant.product.images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <Package size={24} className="text-white/20" />
                     )}
                   </div>
-                  <div>
-                    <p className="font-medium">{getOrderNumber(order.id)}</p>
-                    <p className="text-xs text-white/30">{new Date(order.createdAt).toLocaleDateString('es-CO')}</p>
-                    <p className="text-sm text-white/40 mt-1">{order.items.length} producto{order.items.length > 1 ? 's' : ''} · {fmt(order.total)}</p>
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{getOrderNumber(order.id)}</p>
+                    <p className="text-xs text-white/30 truncate">{new Date(order.createdAt).toLocaleDateString('es-CO')}</p>
+                    <p className="text-sm text-white/40 mt-1 truncate">{order.items.length} producto{order.items.length > 1 ? 's' : ''} · {fmt(order.total)}</p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0 ml-3">
                   <p className="font-bold">{fmt(order.total)}</p>
                   <span className={`text-[11px] px-2 py-1 rounded-full border font-medium ${statusColors[order.status] || 'bg-white/10 text-white/40 border-white/10'}`}>
                     {order.status}

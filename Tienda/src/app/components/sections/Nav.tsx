@@ -15,14 +15,16 @@ export function Nav() {
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 lg:px-10 py-5 bg-[#080808]/90 backdrop-blur-sm border-b border-white/5">
-        <button onClick={() => setNav(!nav)} className="cursor-pointer">
+        <button onClick={() => setNav(!nav)} className="p-2 -ml-2 cursor-pointer">
           <Menu size={20} className="text-white/60 hover:text-white transition-colors" />
         </button>
         <Link to="/" className="tracking-[0.4em] text-sm font-black uppercase bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
           VOID
         </Link>
-        <div className="flex gap-4 items-center">
-          <Search size={18} className="text-white/60 hover:text-white transition-colors cursor-pointer" />
+        <div className="flex gap-1 items-center">
+          <button className="p-2 cursor-pointer" aria-label="Buscar">
+            <Search size={18} className="text-white/60 hover:text-white transition-colors" />
+          </button>
           {isAdmin && (
             <Link to="/admin" className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-violet-500/20 text-violet-400 text-xs font-medium uppercase tracking-wider rounded-lg hover:bg-violet-500/30 hover:text-violet-300 transition-all cursor-pointer">
               <Shield size={14} />
@@ -82,14 +84,14 @@ export function Nav() {
               </AnimatePresence>
             </div>
           ) : (
-            <Link to="/login" className="cursor-pointer">
+            <Link to="/login" className="p-2 cursor-pointer">
               <User size={18} className="text-white/60 hover:text-white transition-colors" />
             </Link>
           )}
-          <Link to="/carrito" className="relative cursor-pointer">
+          <Link to="/carrito" className="relative p-2 cursor-pointer">
             <ShoppingBag size={18} className="text-white/60 hover:text-white transition-colors" />
             {totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-white text-black text-[8px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-white text-black text-[8px] font-bold rounded-full flex items-center justify-center">
                 {totalItems}
               </span>
             )}
@@ -110,7 +112,7 @@ export function Nav() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.3 }}
-              className="w-4/5 max-w-sm bg-[#080808] h-full border-r border-white/5 p-6 flex flex-col"
+              className="w-4/5 max-w-sm bg-[#080808] h-full border-r border-white/5 p-6 flex flex-col overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-10">
                 <span className="tracking-[0.4em] text-sm font-black uppercase text-white">VOID</span>
@@ -124,7 +126,7 @@ export function Nav() {
                 <Link to="/categorias" onClick={() => setNav(false)} className="hover:text-white/60 transition-colors">Categorías</Link>
               </div>
               {isAdmin && (
-                <div className="my-6 border-t border-white/5 pt-6">
+                <div className="my-6 border-t border-white/5 pt-6 hidden sm:block">
                   <Link to="/admin" onClick={() => setNav(false)} className="flex items-center gap-2 px-3 py-2 bg-violet-500/20 text-violet-400 text-xs font-medium uppercase tracking-wider rounded-lg hover:bg-violet-500/30 hover:text-violet-300 transition-all">
                     <Shield size={14} />
                     Panel Admin

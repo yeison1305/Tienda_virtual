@@ -150,14 +150,14 @@ export function AddressesPage() {
                 </div>
                 <div className="flex flex-col gap-2 ml-4">
                   {!addr.isDefault && (
-                    <button onClick={() => handleSetDefault(addr.id)} className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded hover:bg-white/10 transition-colors">
+                    <button onClick={() => handleSetDefault(addr.id)} className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 bg-white/5 px-3 py-2 rounded hover:bg-white/10 transition-colors">
                       <Star size={12} className="fill-current" /> Predeterminada
                     </button>
                   )}
-                  <button onClick={() => handleEdit(addr)} className="text-xs text-white/40 hover:text-white flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded hover:bg-white/10 transition-colors">
+                  <button onClick={() => handleEdit(addr)} className="text-xs text-white/40 hover:text-white flex items-center gap-1 bg-white/5 px-3 py-2 rounded hover:bg-white/10 transition-colors">
                     <Edit size={12} /> Editar
                   </button>
-                  <button onClick={() => handleDelete(addr.id)} className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded hover:bg-white/10 transition-colors">
+                  <button onClick={() => handleDelete(addr.id)} className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 bg-white/5 px-3 py-2 rounded hover:bg-white/10 transition-colors">
                     <Trash2 size={12} /> Eliminar
                   </button>
                 </div>
@@ -168,13 +168,13 @@ export function AddressesPage() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0e0e0e] border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-[#0e0e0e] border border-white/10 rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[92dvh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
               <h2 className="text-lg font-bold uppercase tracking-wider">{editing ? 'Editar dirección' : 'Nueva dirección'}</h2>
               <button onClick={handleCancel} className="p-2 text-white/30 hover:text-white hover:bg-white/10 rounded-lg transition-colors"><MapPin size={20} /></button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
               <div>
                 <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Nombre para la dirección (opcional)</label>
                 <input type="text" value={form.recipientName} onChange={e => setForm(f => ({ ...f, recipientName: e.target.value }))} className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg" placeholder="Casa, Oficina, etc." />

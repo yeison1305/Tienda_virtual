@@ -95,7 +95,7 @@ export function ProductPage() {
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20">
-        <div className="sticky top-28">
+        <div className="lg:sticky lg:top-28">
           <div className="relative aspect-[3/4] overflow-hidden bg-[#181818]">
             <motion.img
               src={product.images[0] ?? ""}
