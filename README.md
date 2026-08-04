@@ -9,7 +9,7 @@ E-commerce completo con panel de administración, sistema de newsletter masivo y
 | Capa | Tecnologías |
 |------|-------------|
 | **Frontend** | React 18, Vite 6, Tailwind CSS, React Router 6, Framer Motion, Lucide Icons |
-| **Backend** | Node.js 20+, Express 5, Prisma ORM, PostgreSQL (Supabase), Nodemailer (Gmail), JWT |
+| **Backend** | Node.js 20+, Express 5, Prisma ORM, PostgreSQL (Supabase), Brevo API (emails), JWT |
 | **Infra** | Supabase (DB + Storage), Vercel (frontend), Render (backend) |
 
 ---
@@ -70,7 +70,7 @@ Tienda_virtual/
 ### Prerrequisitos
 - Node.js 20+
 - npm
-- Cuenta Supabase (PostgreSQL + Storage) + Gmail App Password para emails
+- Cuenta Supabase (PostgreSQL + Storage) + cuenta Brevo gratis (300 emails/día) para emails
 
 ### 1. Clonar e instalar
 
@@ -96,8 +96,7 @@ JWT_SECRET="tu-secreto-largo-y-seguro"
 PORT=4000
 FRONTEND_URL="http://localhost:5173"
 
-EMAIL_USER="tu@gmail.com"
-EMAIL_PASS="tu-gmail-app-password"
+BREVO_API_KEY="xkeysib-..."  # Brevo: Settings → SMTP & API → API Keys
 EMAIL_FROM='"VOID Culture" <noreply@void.co>'
 
 # Opcional: Wompi
@@ -240,10 +239,8 @@ POST   /api/admin/newsletter/send
    | `SUPABASE_URL` | `https://<ref>.supabase.co` |
    | `SUPABASE_SERVICE_KEY` | Service role key |
    | `JWT_SECRET` | Generar: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
-   | `EMAIL_USER` / `EMAIL_PASS` | Gmail + App Password |
-   | `EMAIL_FROM` | `"VOID Culture" <noreply@void.co>` |
-   | `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | (opcional) Proveedor SMTP alternativo — ej. Brevo: `smtp-relay.brevo.com`, `587`, `false` |
-   | `SMTP_USER` / `SMTP_PASS` | (opcional) Credenciales del proveedor; si faltan usa `EMAIL_USER` / `EMAIL_PASS` |
+   | `BREVO_API_KEY` | Brevo API key (`xkeysib-...`) — envía correos por HTTPS, sin puertos SMTP (Render free bloquea 25/465/587) |
+   | `EMAIL_FROM` | Remitente verificado en Brevo: `"VOID Culture" <tucorreo@dominio.com>` |
    | `FRONTEND_URL` | URL final de Vercel **sin barra final** (para CORS) |
    | `NODE_ENV` | `production` (Render inyecta `PORT` solo) |
 

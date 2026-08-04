@@ -1,46 +1,40 @@
-import nodemailer from 'nodemailer';
-import dns from 'node:dns';
-import net from 'node:net';
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-const FROM = process.env.EMAIL_FROM || '"VOID Culture" <noreply@void.co>';
-
-let transporterInstance: nodemailer.Transporter | null = null;
-
-async function getTransporter() {
-  if (!transporterInstance) {
-    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-    let address = host;
-    let servername = process.env.SMTP_SERVERNAME;
-    if (!net.isIP(host)) {
-      try {
-        const { address: ipv4 } = await dns.promises.lookup(host, { family: 4 });
-        if (ipv4) {
-          address = ipv4;
-          servername = servername || host;
-        }
-      } catch {
-        // keep hostname if resolution fails
-      }
-    }
-    transporterInstance = nodemailer.createTransport({
-      host: address,
-      port: Number(process.env.SMTP_PORT) || 465,
-      secure: (process.env.SMTP_SECURE || 'true') === 'true',
-      auth: {
-        user: process.env.SMTP_USER || process.env.EMAIL_USER,
-        pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000,
-      ...(servername ? { tls: { servername } } : {}),
-    });
+function getSender(): { name: string; email: string } {
+  const from = process.env.EMAIL_FROM || '"VOID Culture" <noreply@void.co>';
+  const match = from.match(/^\s*"?([^"<]*)"?\s*<([^>]+)>\s*$/);
+  const name = match?.[1]?.trim();
+  const email = match?.[2]?.trim();
+  if (name && email) {
+    return { name, email };
   }
-  return transporterInstance;
+  return { name: 'VOID Culture', email: from.trim() };
 }
 
-function hasSmtpConfig() {
-  return Boolean((process.env.SMTP_USER || process.env.EMAIL_USER) && (process.env.SMTP_PASS || process.env.EMAIL_PASS));
+function hasEmailConfig() {
+  return Boolean(process.env.BREVO_API_KEY);
+}
+
+async function sendBrevoMail(to: string, subject: string, html: string) {
+  const res = await fetch(BREVO_API_URL, {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY!,
+      'content-type': 'application/json',
+      accept: 'application/json',
+    },
+    body: JSON.stringify({
+      sender: getSender(),
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Brevo API ${res.status}: ${body.slice(0, 300)}`);
+  }
 }
 
 interface OrderEmailData {
@@ -132,19 +126,17 @@ function buildOrderHtml(data: OrderEmailData): string {
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  if (!hasSmtpConfig()) {
-    console.log('[Email] Nodemailer no configurado (Faltan variables EMAIL_USER o EMAIL_PASS) — email no enviado a', data.customerEmail);
+  if (!hasEmailConfig()) {
+    console.log('[Email] Brevo no configurado (Falta BREVO_API_KEY) — email no enviado a', data.customerEmail);
     return;
   }
 
   try {
-    const transporter = await getTransporter();
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || FROM,
-      to: data.customerEmail,
-      subject: `Pedido confirmado — VOID #${data.orderId.slice(-8).toUpperCase()}`,
-      html: buildOrderHtml(data),
-    });
+    await sendBrevoMail(
+      data.customerEmail,
+      `Pedido confirmado — VOID #${data.orderId.slice(-8).toUpperCase()}`,
+      buildOrderHtml(data)
+    );
     console.log('[Email] Confirmación enviada a', data.customerEmail);
   } catch (error: any) {
     console.error('[Email] Error enviando confirmación:', error);
@@ -152,17 +144,16 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
 }
 
 export async function sendNewsletterWelcome(email: string) {
-  if (!hasSmtpConfig()) {
-    console.log('[Email] Nodemailer no configurado (Faltan variables EMAIL_USER o EMAIL_PASS) — newsletter no enviado a', email);
+  if (!hasEmailConfig()) {
+    console.log('[Email] Brevo no configurado (Falta BREVO_API_KEY) — newsletter no enviado a', email);
     return;
   }
 
   try {
-    await (await getTransporter()).sendMail({
-      from: process.env.EMAIL_FROM || FROM,
-      to: email,
-      subject: 'Bienvenido a VOID Culture',
-      html: `
+    await sendBrevoMail(
+      email,
+      'Bienvenido a VOID Culture',
+      `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
@@ -176,8 +167,8 @@ export async function sendNewsletterWelcome(email: string) {
     </div>
   </div>
 </body>
-</html>`,
-    });
+</html>`
+    );
     console.log('[Email] Newsletter enviado a', email);
   } catch (error) {
     console.error('[Email] Error enviando newsletter:', error);
@@ -194,7 +185,7 @@ export interface NewsletterContent {
 }
 
 function buildNewsletterHtml(content: NewsletterContent): string {
-  const { subject, title, message, ctaText, ctaLink, imageUrl } = content;
+  const { title, message, ctaText, ctaLink, imageUrl } = content;
 
   return `
 <!DOCTYPE html>
@@ -237,8 +228,8 @@ function buildNewsletterHtml(content: NewsletterContent): string {
 }
 
 export async function sendBulkNewsletter(emails: string[], content: NewsletterContent) {
-  if (!hasSmtpConfig()) {
-    console.log('[Email] Nodemailer no configurado — newsletter no enviado');
+  if (!hasEmailConfig()) {
+    console.log('[Email] Brevo no configurado (Falta BREVO_API_KEY) — newsletter no enviado');
     return { sent: 0, failed: emails.length };
   }
 
@@ -252,12 +243,7 @@ export async function sendBulkNewsletter(emails: string[], content: NewsletterCo
     const batch = emails.slice(i, i + batchSize);
     await Promise.all(batch.map(async (email) => {
       try {
-        await (await getTransporter()).sendMail({
-          from: process.env.EMAIL_FROM || FROM,
-          to: email,
-          subject: content.subject,
-          html,
-        });
+        await sendBrevoMail(email, content.subject, html);
         sent++;
       } catch (error) {
         console.error(`[Email] Error enviando a ${email}:`, error);
