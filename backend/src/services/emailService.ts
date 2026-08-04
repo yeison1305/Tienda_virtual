@@ -1,13 +1,29 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
+import net from 'node:net';
 
 const FROM = process.env.EMAIL_FROM || '"VOID Culture" <noreply@void.co>';
 
 let transporterInstance: nodemailer.Transporter | null = null;
 
-function getTransporter() {
+async function getTransporter() {
   if (!transporterInstance) {
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    let address = host;
+    let servername: string | undefined;
+    if (!net.isIP(host)) {
+      try {
+        const { address: ipv4 } = await dns.promises.lookup(host, { family: 4 });
+        if (ipv4) {
+          address = ipv4;
+          servername = host;
+        }
+      } catch {
+        // keep hostname if resolution fails
+      }
+    }
     transporterInstance = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      host: address,
       port: Number(process.env.SMTP_PORT) || 465,
       secure: (process.env.SMTP_SECURE || 'true') === 'true',
       auth: {
@@ -17,6 +33,7 @@ function getTransporter() {
       connectionTimeout: 10000,
       greetingTimeout: 10000,
       socketTimeout: 15000,
+      ...(servername ? { tls: { servername } } : {}),
     });
   }
   return transporterInstance;
@@ -121,7 +138,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
   }
 
   try {
-    const transporter = getTransporter();
+    const transporter = await getTransporter();
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM || FROM,
       to: data.customerEmail,
@@ -141,7 +158,7 @@ export async function sendNewsletterWelcome(email: string) {
   }
 
   try {
-    await getTransporter().sendMail({
+    await (await getTransporter()).sendMail({
       from: process.env.EMAIL_FROM || FROM,
       to: email,
       subject: 'Bienvenido a VOID Culture',
@@ -235,7 +252,7 @@ export async function sendBulkNewsletter(emails: string[], content: NewsletterCo
     const batch = emails.slice(i, i + batchSize);
     await Promise.all(batch.map(async (email) => {
       try {
-        await getTransporter().sendMail({
+        await (await getTransporter()).sendMail({
           from: process.env.EMAIL_FROM || FROM,
           to: email,
           subject: content.subject,
