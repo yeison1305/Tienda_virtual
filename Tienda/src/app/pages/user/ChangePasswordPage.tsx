@@ -109,19 +109,17 @@ export function ChangePasswordPage() {
               {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {form.newPassword.length > 0 && (
-            <ul className="mt-2 space-y-1">
-              {PASSWORD_RULES.map((rule) => {
-                const ok = rule.re.test(form.newPassword);
-                return (
-                  <li key={rule.label} className={`text-xs flex items-center gap-2 ${ok ? 'text-emerald-400' : 'text-white/30'}`}>
-                    <span>{ok ? '✓' : '○'}</span>
-                    {rule.label}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <ul className="mt-2 space-y-1">
+            {PASSWORD_RULES.map((rule) => {
+              const ok = rule.re.test(form.newPassword);
+              return (
+                <li key={rule.label} className={`text-xs flex items-center gap-2 ${ok ? 'text-emerald-400' : 'text-white/30'}`}>
+                  <span>{ok ? '✓' : '○'}</span>
+                  {rule.label}
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
         <div>

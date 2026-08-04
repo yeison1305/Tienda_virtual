@@ -187,7 +187,7 @@ export function CheckoutPage() {
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
                 className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${fieldErrors.phone ? 'border-red-500/50' : 'border-white/10'}`}
                 placeholder="300 123 4567" required />
-              {fieldErrors.phone && <p className="text-xs text-red-400 mt-1">{fieldErrors.phone}</p>}
+              {fieldErrors.phone ? <p className="text-xs text-red-400 mt-1">{fieldErrors.phone}</p> : <p className="text-xs text-white/30 mt-1">Entre 7 y 15 dígitos, solo números</p>}
             </div>
             <div>
               <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Dirección</label>

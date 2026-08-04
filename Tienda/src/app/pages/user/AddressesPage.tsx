@@ -214,7 +214,7 @@ export function AddressesPage() {
               <div>
                 <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Teléfono *</label>
                 <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className={`w-full bg-white/5 border px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg ${formErrors.phone ? 'border-red-500/50' : 'border-white/10'}`} placeholder="300 123 4567" required />
-                {formErrors.phone && <p className="text-xs text-red-400 mt-1">{formErrors.phone}</p>}
+                {formErrors.phone ? <p className="text-xs text-red-400 mt-1">{formErrors.phone}</p> : <p className="text-xs text-white/30 mt-1">Entre 7 y 15 dígitos, solo números</p>}
               </div>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={form.isDefault} onChange={e => setForm(f => ({ ...f, isDefault: e.target.checked }))} className="w-4 h-4 accent-violet-500 rounded border-white/20 bg-white/5" />

@@ -75,19 +75,17 @@ export function RegisterPage() {
               placeholder="••••••••"
               required
             />
-            {password.length > 0 && (
-              <ul className="mt-2 space-y-1">
-                {PASSWORD_RULES.map((rule) => {
-                  const ok = rule.re.test(password);
-                  return (
-                    <li key={rule.label} className={`text-xs flex items-center gap-2 ${ok ? 'text-emerald-400' : 'text-white/30'}`}>
-                      <span>{ok ? '✓' : '○'}</span>
-                      {rule.label}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+            <ul className="mt-2 space-y-1">
+              {PASSWORD_RULES.map((rule) => {
+                const ok = rule.re.test(password);
+                return (
+                  <li key={rule.label} className={`text-xs flex items-center gap-2 ${ok ? 'text-emerald-400' : 'text-white/30'}`}>
+                    <span>{ok ? '✓' : '○'}</span>
+                    {rule.label}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
           <div>
             <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Confirmar contraseña</label>
