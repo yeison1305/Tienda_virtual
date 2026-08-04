@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { passwordErrors, isValidEmail, PASSWORD_RULES } from '../utils/validation';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function RegisterPage() {
   const { register } = useAuth();
@@ -9,6 +10,8 @@ export function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -67,14 +70,24 @@ export function RegisterPage() {
           </div>
           <div>
             <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 pr-12"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white"
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             <ul className="mt-2 space-y-1">
               {PASSWORD_RULES.map((rule) => {
                 const ok = rule.re.test(password);
@@ -89,14 +102,24 @@ export function RegisterPage() {
           </div>
           <div>
             <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Confirmar contraseña</label>
-            <input
-              type="password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${confirm.length > 0 && confirm !== password ? 'border-red-500/50' : 'border-white/10'}`}
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showConfirm ? 'text' : 'password'}
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 pr-12 ${confirm.length > 0 && confirm !== password ? 'border-red-500/50' : 'border-white/10'}`}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(!showConfirm)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white"
+                aria-label={showConfirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              >
+                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {confirm.length > 0 && confirm !== password && (
               <p className="text-xs text-red-400 mt-1">Las contraseñas no coinciden</p>
             )}
