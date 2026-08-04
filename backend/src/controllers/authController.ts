@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../server';
+import { isValidEmail, validatePassword } from '../utils/validators';
 
 const JWT_SECRET = process.env.JWT_SECRET ?? '';
 if (!JWT_SECRET) {
@@ -22,8 +23,14 @@ export const register = async (req: Request, res: Response) => {
       return;
     }
 
-    if (password.length < 6) {
-      res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+    if (!isValidEmail(email)) {
+      res.status(400).json({ error: 'El email no tiene un formato válido' });
+      return;
+    }
+
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      res.status(400).json({ error: passwordErrors[0] });
       return;
     }
 
@@ -56,6 +63,11 @@ export const login = async (req: Request, res: Response) => {
 
     if (!email || !password) {
       res.status(400).json({ error: 'Email y contraseña son requeridos' });
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      res.status(400).json({ error: 'El email no tiene un formato válido' });
       return;
     }
 

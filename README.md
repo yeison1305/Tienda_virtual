@@ -242,7 +242,9 @@ POST   /api/admin/newsletter/send
    | `JWT_SECRET` | Generar: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
    | `EMAIL_USER` / `EMAIL_PASS` | Gmail + App Password |
    | `EMAIL_FROM` | `"VOID Culture" <noreply@void.co>` |
-   | `FRONTEND_URL` | URL final de Vercel (para CORS) |
+   | `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | (opcional) Proveedor SMTP alternativo — ej. Brevo: `smtp-relay.brevo.com`, `587`, `false` |
+   | `SMTP_USER` / `SMTP_PASS` | (opcional) Credenciales del proveedor; si faltan usa `EMAIL_USER` / `EMAIL_PASS` |
+   | `FRONTEND_URL` | URL final de Vercel **sin barra final** (para CORS) |
    | `NODE_ENV` | `production` (Render inyecta `PORT` solo) |
 
 6. **Nota free tier**: Render duerme el servicio tras ~15 min de inactividad → el primer request tarda ~50 s (cold start). Si es problema, plan Starter.

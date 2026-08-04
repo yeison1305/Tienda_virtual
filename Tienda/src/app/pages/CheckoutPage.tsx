@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { api, ApiAddress } from "../services/api";
 import { fmt } from "../data";
+import { isValidEmail, isValidPhone } from "../utils/validation";
 
 export function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
@@ -19,6 +20,7 @@ export function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [savedAddresses, setSavedAddresses] = useState<ApiAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [showAddressSelector, setShowAddressSelector] = useState(false);
@@ -64,6 +66,22 @@ export function CheckoutPage() {
     e.preventDefault();
     if (loading) return;
     setError("");
+    setFieldErrors({});
+
+    const errors: Record<string, string> = {};
+    if ((name || "").trim().length < 3) errors.name = "El nombre debe tener al menos 3 caracteres";
+    if (!isValidPhone(phone)) errors.phone = "El teléfono debe tener entre 7 y 15 dígitos";
+    if ((address || "").trim().length < 5) errors.address = "La dirección debe tener al menos 5 caracteres";
+    if ((city || "").trim().length < 2) errors.city = "La ciudad es obligatoria";
+    if ((department || "").trim().length < 2) errors.department = "El departamento es obligatorio";
+    if (!user && !isValidEmail(email)) errors.email = "El email no tiene un formato válido";
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError("Revisa los campos marcados");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -160,33 +178,38 @@ export function CheckoutPage() {
             <div>
               <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Nombre completo</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
+                className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${fieldErrors.name ? 'border-red-500/50' : 'border-white/10'}`}
                 placeholder="Juan Pérez" required />
+              {fieldErrors.name && <p className="text-xs text-red-400 mt-1">{fieldErrors.name}</p>}
             </div>
             <div>
               <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Teléfono</label>
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
+                className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${fieldErrors.phone ? 'border-red-500/50' : 'border-white/10'}`}
                 placeholder="300 123 4567" required />
+              {fieldErrors.phone && <p className="text-xs text-red-400 mt-1">{fieldErrors.phone}</p>}
             </div>
             <div>
               <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Dirección</label>
               <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
+                className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${fieldErrors.address ? 'border-red-500/50' : 'border-white/10'}`}
                 placeholder="Calle 123 #45-67" required />
+              {fieldErrors.address && <p className="text-xs text-red-400 mt-1">{fieldErrors.address}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Ciudad</label>
                 <input type="text" value={city} onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
+                  className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${fieldErrors.city ? 'border-red-500/50' : 'border-white/10'}`}
                   placeholder="Bogotá" required />
+                {fieldErrors.city && <p className="text-xs text-red-400 mt-1">{fieldErrors.city}</p>}
               </div>
               <div>
                 <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Departamento</label>
                 <input type="text" value={department} onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
+                  className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${fieldErrors.department ? 'border-red-500/50' : 'border-white/10'}`}
                   placeholder="Cundinamarca" required />
+                {fieldErrors.department && <p className="text-xs text-red-400 mt-1">{fieldErrors.department}</p>}
               </div>
 </div>
         </div>
@@ -195,8 +218,9 @@ export function CheckoutPage() {
           <div>
             <h2 className="text-lg font-black uppercase mb-4">Email (para recibir el confirmación)</h2>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
+              className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${fieldErrors.email ? 'border-red-500/50' : 'border-white/10'}`}
               placeholder="tucorreo@ejemplo.com" required />
+            {fieldErrors.email && <p className="text-xs text-red-400 mt-1">{fieldErrors.email}</p>}
           </div>
         )}
 

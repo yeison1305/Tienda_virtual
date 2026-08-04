@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../server';
 import { sendNewsletterWelcome } from '../services/emailService';
+import { isValidEmail } from '../utils/validators';
 
 const router = Router();
 
@@ -9,7 +10,12 @@ router.post('/subscribe', async (req: Request, res: Response) => {
     const { email } = req.body;
 
     if (!email) {
-      res.status(400).json({ error: 'Email is required' });
+      res.status(400).json({ error: 'El email es requerido' });
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      res.status(400).json({ error: 'El email no tiene un formato válido' });
       return;
     }
 

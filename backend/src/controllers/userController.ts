@@ -1,6 +1,23 @@
 import { Request, Response } from 'express';
 import { prisma } from '../server';
 import bcrypt from 'bcrypt';
+import { isValidEmail, isValidPhone, validatePassword, validateText } from '../utils/validators';
+
+function validateAddressInput(body: any): string | null {
+  const { line1, city, department, phone, recipientName } = body;
+  if (!line1 || !city || !department || !phone) {
+    return 'Todos los campos son requeridos';
+  }
+  const errLine1 = validateText('La dirección', line1, 5, 120, 'La dirección');
+  if (errLine1) return errLine1;
+  const errCity = validateText('La ciudad', city, 2, 60, 'La ciudad');
+  if (errCity) return errCity;
+  const errDept = validateText('El departamento', department, 2, 60, 'El departamento');
+  if (errDept) return errDept;
+  if (!isValidPhone(phone)) return 'El teléfono debe tener entre 7 y 15 dígitos';
+  if (recipientName && recipientName.length > 60) return 'El nombre del destinatario no debe superar 60 caracteres';
+  return null;
+}
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
@@ -42,6 +59,10 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     // Verificar email único si se cambia
     if (email && email !== dbUser.email) {
+      if (!isValidEmail(email)) {
+        res.status(400).json({ error: 'El email no tiene un formato válido' });
+        return;
+      }
       const existing = await prisma.user.findUnique({ where: { email } });
       if (existing) {
         res.status(400).json({ error: 'El email ya está en uso' });
@@ -59,6 +80,11 @@ export const updateProfile = async (req: Request, res: Response) => {
       const valid = await bcrypt.compare(currentPassword, dbUser.passwordHash || '');
       if (!valid) {
         res.status(400).json({ error: 'Contraseña actual incorrecta' });
+        return;
+      }
+      const passwordErrors = validatePassword(newPassword);
+      if (passwordErrors.length > 0) {
+        res.status(400).json({ error: passwordErrors[0] });
         return;
       }
       passwordHash = await bcrypt.hash(newPassword, 10);
@@ -164,8 +190,9 @@ export const createAddress = async (req: Request, res: Response) => {
     const user = (req as any).user;
     const { line1, city, department, phone, recipientName, isDefault } = req.body;
 
-    if (!line1 || !city || !department || !phone) {
-      res.status(400).json({ error: 'Todos los campos son requeridos' });
+    const inputError = validateAddressInput(req.body);
+    if (inputError) {
+      res.status(400).json({ error: inputError });
       return;
     }
 
@@ -214,6 +241,18 @@ export const updateAddress = async (req: Request, res: Response) => {
 
     if (!address) {
       res.status(404).json({ error: 'Dirección no encontrada' });
+      return;
+    }
+
+    const inputError = validateAddressInput({
+      line1: line1 || address.line1,
+      city: city || address.city,
+      department: department || address.department,
+      phone: phone || address.phone,
+      recipientName: recipientName !== undefined ? recipientName : address.recipientName,
+    });
+    if (inputError) {
+      res.status(400).json({ error: inputError });
       return;
     }
 

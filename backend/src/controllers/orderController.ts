@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../server';
 import { sendOrderConfirmation } from '../services/emailService';
+import { isValidEmail, isValidPhone, validateText } from '../utils/validators';
 
 const orderInclude = {
   items: { include: { variant: { include: { product: true } } } },
@@ -34,6 +35,26 @@ export const createOrder = async (req: Request, res: Response) => {
     }
     if (!user && (!guestEmail || typeof guestEmail !== 'string')) {
       return res.status(400).json({ error: 'El email es obligatorio para pedidos de invitado' });
+    }
+    if (!user && !isValidEmail(guestEmail)) {
+      return res.status(400).json({ error: 'El email del invitado no tiene un formato válido' });
+    }
+
+    // Validar datos de envío
+    if (shipping && typeof shipping === 'object') {
+      const errName = validateText('El nombre', shipping.name, 3, 60, 'El nombre');
+      if (errName) return res.status(400).json({ error: errName });
+      const errPhone = validateText('El teléfono', shipping.phone, 7, 15, 'El teléfono');
+      if (errPhone) return res.status(400).json({ error: errPhone });
+      if (!isValidPhone(shipping.phone)) {
+        return res.status(400).json({ error: 'El teléfono debe tener entre 7 y 15 dígitos' });
+      }
+      const errAddress = validateText('La dirección', shipping.address, 5, 120, 'La dirección');
+      if (errAddress) return res.status(400).json({ error: errAddress });
+      const errCity = validateText('La ciudad', shipping.city, 2, 60, 'La ciudad');
+      if (errCity) return res.status(400).json({ error: errCity });
+      const errDept = validateText('El departamento', shipping.department, 2, 60, 'El departamento');
+      if (errDept) return res.status(400).json({ error: errDept });
     }
 
     // Resolve variant IDs and take prices from the database (never from the client)

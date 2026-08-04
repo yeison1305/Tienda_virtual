@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import { isValidEmail } from '../utils/validation';
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -14,6 +15,12 @@ export function LoginPage() {
     e.preventDefault();
     if (loading) return;
     setError('');
+
+    if (!isValidEmail(email)) {
+      setError('El email no tiene un formato válido');
+      return;
+    }
+
     setLoading(true);
     try {
       await login(email, password);

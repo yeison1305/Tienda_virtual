@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { Eye, EyeOff, Shield, Lock, Save, Loader2 } from 'lucide-react';
+import { passwordErrors, PASSWORD_RULES } from '../../utils/validation';
 
 export function ChangePasswordPage() {
   const { user } = useAuth();
@@ -34,8 +35,8 @@ export function ChangePasswordPage() {
     if (form.newPassword !== form.confirmPassword) {
       return showMsg('error', 'Las contraseñas no coinciden');
     }
-    if (form.newPassword.length < 8) {
-      return showMsg('error', 'La contraseña debe tener al menos 8 caracteres');
+    if (passwordErrors(form.newPassword).length > 0) {
+      return showMsg('error', 'La contraseña no cumple los requisitos');
     }
     setSaving(true);
     try {
@@ -89,7 +90,7 @@ export function ChangePasswordPage() {
         </div>
 
         <div>
-          <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Nueva contraseña (mín. 8 caracteres)</label>
+          <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Nueva contraseña</label>
           <div className="relative">
             <input
               type={showNew ? 'text' : 'password'}
@@ -108,6 +109,19 @@ export function ChangePasswordPage() {
               {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+          {form.newPassword.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {PASSWORD_RULES.map((rule) => {
+                const ok = rule.re.test(form.newPassword);
+                return (
+                  <li key={rule.label} className={`text-xs flex items-center gap-2 ${ok ? 'text-emerald-400' : 'text-white/30'}`}>
+                    <span>{ok ? '✓' : '○'}</span>
+                    {rule.label}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
 
         <div>

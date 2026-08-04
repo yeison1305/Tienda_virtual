@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import { passwordErrors, isValidEmail, PASSWORD_RULES } from '../utils/validation';
 
 export function RegisterPage() {
   const { register } = useAuth();
@@ -11,10 +12,23 @@ export function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const pwErrors = passwordErrors(password);
+  const emailInvalid = email.length > 0 && !isValidEmail(email);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setError('');
+
+    if (emailInvalid) {
+      setError('El email no tiene un formato válido');
+      return;
+    }
+
+    if (pwErrors.length > 0) {
+      setError('La contraseña no cumple los requisitos');
+      return;
+    }
 
     if (password !== confirm) {
       setError('Las contraseñas no coinciden');
@@ -45,10 +59,11 @@ export function RegisterPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
+              className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${emailInvalid ? 'border-red-500/50' : 'border-white/10'}`}
               placeholder="tucorreo@ejemplo.com"
               required
             />
+            {emailInvalid && <p className="text-xs text-red-400 mt-1">El email no tiene un formato válido</p>}
           </div>
           <div>
             <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Contraseña</label>
@@ -59,8 +74,20 @@ export function RegisterPage() {
               className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
               placeholder="••••••••"
               required
-              minLength={6}
             />
+            {password.length > 0 && (
+              <ul className="mt-2 space-y-1">
+                {PASSWORD_RULES.map((rule) => {
+                  const ok = rule.re.test(password);
+                  return (
+                    <li key={rule.label} className={`text-xs flex items-center gap-2 ${ok ? 'text-emerald-400' : 'text-white/30'}`}>
+                      <span>{ok ? '✓' : '○'}</span>
+                      {rule.label}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
           <div>
             <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Confirmar contraseña</label>
@@ -68,11 +95,13 @@ export function RegisterPage() {
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30"
+              className={`w-full bg-white/5 border px-5 py-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 ${confirm.length > 0 && confirm !== password ? 'border-red-500/50' : 'border-white/10'}`}
               placeholder="••••••••"
               required
-              minLength={6}
             />
+            {confirm.length > 0 && confirm !== password && (
+              <p className="text-xs text-red-400 mt-1">Las contraseñas no coinciden</p>
+            )}
           </div>
 
           {error && <p className="text-xs text-red-400">{error}</p>}

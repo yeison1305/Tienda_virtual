@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, ApiAddress } from '../../services/api';
 import { Plus, MapPin, Edit, Trash2, CheckCircle, Home, Star, Phone } from 'lucide-react';
+import { isValidPhone } from '../../utils/validation';
 
 interface AddressFormData {
   line1: string;
@@ -20,6 +21,7 @@ export function AddressesPage() {
     line1: '', city: '', department: '', phone: '', recipientName: '', isDefault: false
   });
   const [submitting, setSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadAddresses();
@@ -40,6 +42,18 @@ export function AddressesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+
+    const errors: Record<string, string> = {};
+    if ((form.line1 || '').trim().length < 5) errors.line1 = 'La dirección debe tener al menos 5 caracteres';
+    if ((form.city || '').trim().length < 2) errors.city = 'La ciudad es obligatoria';
+    if ((form.department || '').trim().length < 2) errors.department = 'El departamento es obligatorio';
+    if (!isValidPhone(form.phone)) errors.phone = 'El teléfono debe tener entre 7 y 15 dígitos';
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+
     setSubmitting(true);
     try {
       if (editing) {
@@ -97,6 +111,7 @@ export function AddressesPage() {
   const handleCancel = () => {
     setShowForm(false);
     setEditing(null);
+    setFormErrors({});
     resetForm();
   };
 
@@ -123,7 +138,7 @@ export function AddressesPage() {
           <MapPin size={64} className="mx-auto text-white/10 mb-4" />
           <h2 className="text-xl font-bold mb-2">No tienes direcciones guardadas</h2>
           <p className="text-white/30 text-sm mb-6">Agrega una dirección para agilizar tus compras</p>
-          <button onClick={() => { setEditing(null); resetForm(); setShowForm(true); }} className="bg-white text-black px-6 py-3 text-xs tracking-[0.15em] uppercase font-bold hover:bg-white/90 transition-colors rounded-lg">
+          <button onClick={() => { setEditing(null); resetForm(); setFormErrors({}); setShowForm(true); }} className="bg-white text-black px-6 py-3 text-xs tracking-[0.15em] uppercase font-bold hover:bg-white/90 transition-colors rounded-lg">
             Agregar primera dirección
           </button>
         </div>
@@ -181,21 +196,25 @@ export function AddressesPage() {
               </div>
               <div>
                 <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Dirección *</label>
-                <input type="text" value={form.line1} onChange={e => setForm(f => ({ ...f, line1: e.target.value }))} className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg" placeholder="Calle, número, apartamento" required />
+                <input type="text" value={form.line1} onChange={e => setForm(f => ({ ...f, line1: e.target.value }))} className={`w-full bg-white/5 border px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg ${formErrors.line1 ? 'border-red-500/50' : 'border-white/10'}`} placeholder="Calle, número, apartamento" required />
+                {formErrors.line1 && <p className="text-xs text-red-400 mt-1">{formErrors.line1}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Ciudad *</label>
-                  <input type="text" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg" placeholder="Bogotá" required />
+                  <input type="text" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} className={`w-full bg-white/5 border px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg ${formErrors.city ? 'border-red-500/50' : 'border-white/10'}`} placeholder="Bogotá" required />
+                  {formErrors.city && <p className="text-xs text-red-400 mt-1">{formErrors.city}</p>}
                 </div>
                 <div>
                   <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Departamento *</label>
-                  <input type="text" value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))} className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg" placeholder="Cundinamarca" required />
+                  <input type="text" value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))} className={`w-full bg-white/5 border px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg ${formErrors.department ? 'border-red-500/50' : 'border-white/10'}`} placeholder="Cundinamarca" required />
+                  {formErrors.department && <p className="text-xs text-red-400 mt-1">{formErrors.department}</p>}
                 </div>
               </div>
               <div>
                 <label className="text-xs text-white/40 tracking-widest uppercase block mb-2">Teléfono *</label>
-                <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg" placeholder="300 123 4567" required />
+                <input type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className={`w-full bg-white/5 border px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 rounded-lg ${formErrors.phone ? 'border-red-500/50' : 'border-white/10'}`} placeholder="300 123 4567" required />
+                {formErrors.phone && <p className="text-xs text-red-400 mt-1">{formErrors.phone}</p>}
               </div>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={form.isDefault} onChange={e => setForm(f => ({ ...f, isDefault: e.target.checked }))} className="w-4 h-4 accent-violet-500 rounded border-white/20 bg-white/5" />
