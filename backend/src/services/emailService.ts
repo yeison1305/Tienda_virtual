@@ -10,13 +10,13 @@ async function getTransporter() {
   if (!transporterInstance) {
     const host = process.env.SMTP_HOST || 'smtp.gmail.com';
     let address = host;
-    let servername: string | undefined;
+    let servername = process.env.SMTP_SERVERNAME;
     if (!net.isIP(host)) {
       try {
         const { address: ipv4 } = await dns.promises.lookup(host, { family: 4 });
         if (ipv4) {
           address = ipv4;
-          servername = host;
+          servername = servername || host;
         }
       } catch {
         // keep hostname if resolution fails
