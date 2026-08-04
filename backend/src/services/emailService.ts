@@ -7,14 +7,23 @@ let transporterInstance: nodemailer.Transporter | null = null;
 function getTransporter() {
   if (!transporterInstance) {
     transporterInstance = nodemailer.createTransport({
-      service: 'gmail',
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: Number(process.env.SMTP_PORT) || 465,
+      secure: (process.env.SMTP_SECURE || 'true') === 'true',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.SMTP_USER || process.env.EMAIL_USER,
+        pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
       },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     });
   }
   return transporterInstance;
+}
+
+function hasSmtpConfig() {
+  return Boolean((process.env.SMTP_USER || process.env.EMAIL_USER) && (process.env.SMTP_PASS || process.env.EMAIL_PASS));
 }
 
 interface OrderEmailData {
@@ -106,7 +115,7 @@ function buildOrderHtml(data: OrderEmailData): string {
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!hasSmtpConfig()) {
     console.log('[Email] Nodemailer no configurado (Faltan variables EMAIL_USER o EMAIL_PASS) — email no enviado a', data.customerEmail);
     return;
   }
@@ -126,7 +135,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
 }
 
 export async function sendNewsletterWelcome(email: string) {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!hasSmtpConfig()) {
     console.log('[Email] Nodemailer no configurado (Faltan variables EMAIL_USER o EMAIL_PASS) — newsletter no enviado a', email);
     return;
   }
@@ -211,7 +220,7 @@ function buildNewsletterHtml(content: NewsletterContent): string {
 }
 
 export async function sendBulkNewsletter(emails: string[], content: NewsletterContent) {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!hasSmtpConfig()) {
     console.log('[Email] Nodemailer no configurado — newsletter no enviado');
     return { sent: 0, failed: emails.length };
   }
