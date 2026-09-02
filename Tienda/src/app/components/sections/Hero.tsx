@@ -11,7 +11,7 @@ export function Hero() {
         <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: "easeOut" }}>
           <div className="flex items-center gap-3 mb-4 md:mb-8">
             <div className="w-8 h-px bg-white/40" />
-            <span className="text-white/40 tracking-[0.5em] text-xs uppercase">Drop 001 — 2025</span>
+            <span className="text-white/40 tracking-[0.5em] text-xs uppercase">Estilo urbano, sin límites</span>
           </div>
           <h1 className="text-[4.5rem] sm:text-[6rem] lg:text-[9rem] font-black uppercase leading-none tracking-tighter mb-6 text-white" style={{ lineHeight: 0.85 }}>
             FIVE TO FIVE
