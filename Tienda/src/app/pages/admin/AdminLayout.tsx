@@ -81,7 +81,7 @@ export function AdminLayout() {
         <button onClick={() => setOpen(true)} className="p-2 -ml-2 cursor-pointer" aria-label="Abrir menú">
           <Menu size={22} className="text-white/70" />
         </button>
-        <span className="tracking-[0.4em] text-xs font-black uppercase text-white/80">VOID</span>
+        <span className="tracking-[0.4em] text-xs font-black uppercase text-white/80">FIVE TO FIVE</span>
         <Link to="/" className="p-2 -mr-2 cursor-pointer" aria-label="Volver a la tienda">
           <ArrowLeft size={20} className="text-white/70" />
         </Link>
@@ -95,7 +95,7 @@ export function AdminLayout() {
               <Shield size={18} />
             </div>
             <div>
-              <h1 className="text-base font-black tracking-[0.2em] uppercase">VOID</h1>
+              <h1 className="text-base font-black tracking-[0.2em] uppercase">FIVE TO FIVE</h1>
               <p className="text-[10px] text-white/30 tracking-widest uppercase">Admin Panel</p>
             </div>
           </div>
@@ -127,7 +127,7 @@ export function AdminLayout() {
                   <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-lg flex items-center justify-center">
                     <Shield size={18} />
                   </div>
-                  <span className="text-base font-black tracking-[0.2em] uppercase">VOID</span>
+                  <span className="text-base font-black tracking-[0.2em] uppercase">FIVE TO FIVE</span>
                 </div>
                 <button onClick={() => setOpen(false)} className="p-2 cursor-pointer" aria-label="Cerrar menú">
                   <X size={22} className="text-white/60" />

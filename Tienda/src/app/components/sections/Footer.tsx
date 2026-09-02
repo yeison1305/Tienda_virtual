@@ -3,7 +3,7 @@ export function Footer() {
     <footer className="py-12 px-4 md:px-8 lg:px-10 border-t border-white/5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
         <div>
-          <span className="tracking-[0.4em] text-sm font-black uppercase block mb-4">VOID</span>
+          <img src="/logo.png" alt="FIVE TO FIVE" className="h-8 w-auto mb-4" />
           <p className="text-xs text-white/30 leading-relaxed">Drop culture. Piezas con propósito.</p>
         </div>
         {[
@@ -22,7 +22,7 @@ export function Footer() {
         ))}
       </div>
       <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="text-xs text-white/15">© 2025 VOID</p>
+        <p className="text-xs text-white/15">© 2025 FIVE TO FIVE</p>
         <div className="flex gap-4 text-xs text-white/15 flex-wrap justify-center">
           <span>Pago contra entrega</span>
         </div>

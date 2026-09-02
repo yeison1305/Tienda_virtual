@@ -19,8 +19,8 @@ export function Nav() {
         <button onClick={() => setNav(!nav)} className="p-2 -ml-2 cursor-pointer">
           <Menu size={20} className="text-white/60 hover:text-white transition-colors" />
         </button>
-        <Link to="/" className="tracking-[0.4em] text-sm font-black uppercase bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
-          VOID
+        <Link to="/" className="flex items-center">
+          <img src="/logo.png" alt="FIVE TO FIVE" className="h-8 w-auto" />
         </Link>
         <div className="flex gap-1 items-center">
           <button className="p-2 cursor-pointer" aria-label="Buscar">
@@ -116,7 +116,7 @@ export function Nav() {
               className="w-4/5 max-w-sm bg-[#080808] h-full border-r border-white/5 p-6 flex flex-col overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-10">
-                <span className="tracking-[0.4em] text-sm font-black uppercase text-white">VOID</span>
+                <img src="/logo.png" alt="FIVE TO FIVE" className="h-8 w-auto" />
                 <button onClick={() => setNav(false)} className="cursor-pointer">
                   <X size={24} className="text-white/60 hover:text-white" />
                 </button>

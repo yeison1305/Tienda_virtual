@@ -1,14 +1,14 @@
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 function getSender(): { name: string; email: string } {
-  const from = process.env.EMAIL_FROM || '"VOID Culture" <noreply@void.co>';
+  const from = process.env.EMAIL_FROM || '"FIVE TO FIVE" <noreply@fivetofive.com>';
   const match = from.match(/^\s*"?([^"<]*)"?\s*<([^>]+)>\s*$/);
   const name = match?.[1]?.trim();
   const email = match?.[2]?.trim();
   if (name && email) {
     return { name, email };
   }
-  return { name: 'VOID Culture', email: from.trim() };
+  return { name: 'FIVE TO FIVE', email: from.trim() };
 }
 
 function hasEmailConfig() {
@@ -74,7 +74,7 @@ function buildOrderHtml(data: OrderEmailData): string {
 <body style="margin:0;padding:0;background:#080808;font-family:'Helvetica Neue',Arial,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
     <div style="text-align:center;margin-bottom:40px;">
-      <h1 style="color:#fff;font-size:24px;letter-spacing:0.3em;margin:0;">VOID</h1>
+      <h1 style="color:#fff;font-size:24px;letter-spacing:0.3em;margin:0;">FIVE TO FIVE</h1>
     </div>
 
     <div style="text-align:center;margin-bottom:40px;">
@@ -118,7 +118,7 @@ function buildOrderHtml(data: OrderEmailData): string {
     </div>
 
     <div style="text-align:center;border-top:1px solid #222;padding-top:20px;">
-      <p style="color:#333;font-size:12px;margin:0;">© 2026 VOID Culture</p>
+      <p style="color:#333;font-size:12px;margin:0;">© 2026 FIVE TO FIVE</p>
     </div>
   </div>
 </body>
@@ -134,7 +134,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
   try {
     await sendBrevoMail(
       data.customerEmail,
-      `Pedido confirmado — VOID #${data.orderId.slice(-8).toUpperCase()}`,
+      `Pedido confirmado — FIVE TO FIVE #${data.orderId.slice(-8).toUpperCase()}`,
       buildOrderHtml(data)
     );
     console.log('[Email] Confirmación enviada a', data.customerEmail);
@@ -152,18 +152,18 @@ export async function sendNewsletterWelcome(email: string) {
   try {
     await sendBrevoMail(
       email,
-      'Bienvenido a VOID Culture',
+      'Bienvenido a FIVE TO FIVE',
       `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#080808;font-family:'Helvetica Neue',Arial,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:40px 20px;text-align:center;">
-    <h1 style="color:#fff;font-size:24px;letter-spacing:0.3em;margin:0 0 30px;">VOID</h1>
+    <h1 style="color:#fff;font-size:24px;letter-spacing:0.3em;margin:0 0 30px;">FIVE TO FIVE</h1>
     <h2 style="color:#fff;font-size:18px;margin:0 0 16px;">Bienvenido a la comunidad</h2>
     <p style="color:#666;font-size:14px;margin:0 0 30px;">Pronto recibirás noticias de nuestros nuevos drops y lanzamientos exclusivos.</p>
     <div style="border-top:1px solid #222;padding-top:20px;">
-      <p style="color:#333;font-size:12px;margin:0;">© 2026 VOID Culture</p>
+      <p style="color:#333;font-size:12px;margin:0;">© 2026 FIVE TO FIVE</p>
     </div>
   </div>
 </body>
@@ -194,7 +194,7 @@ function buildNewsletterHtml(content: NewsletterContent): string {
 <body style="margin:0;padding:0;background:#080808;font-family:'Helvetica Neue',Arial,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
     <div style="text-align:center;margin-bottom:40px;">
-      <h1 style="color:#fff;font-size:24px;letter-spacing:0.3em;margin:0;">VOID</h1>
+      <h1 style="color:#fff;font-size:24px;letter-spacing:0.3em;margin:0;">FIVE TO FIVE</h1>
     </div>
 
     ${imageUrl ? `
@@ -217,7 +217,7 @@ function buildNewsletterHtml(content: NewsletterContent): string {
     ` : ''}
 
     <div style="text-align:center;border-top:1px solid #222;padding-top:20px;">
-      <p style="color:#333;font-size:12px;margin:0 0 8px;">© 2026 VOID Culture</p>
+      <p style="color:#333;font-size:12px;margin:0 0 8px;">© 2026 FIVE TO FIVE</p>
       <p style="color:#333;font-size:11px;margin:0;">
         <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/newsletter/unsubscribe" style="color:#555;text-decoration:underline;">Cancelar suscripción</a>
       </p>
