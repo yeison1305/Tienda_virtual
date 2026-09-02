@@ -19,8 +19,15 @@ export function Nav() {
         <button onClick={() => setNav(!nav)} className="p-2 -ml-2 cursor-pointer">
           <Menu size={20} className="text-white/60 hover:text-white transition-colors" />
         </button>
-        <Link to="/" className="flex items-center">
-          <img src="/logo.png" alt="FIVE TO FIVE" className="h-8 w-auto" />
+        <Link to="/" className="flex items-center justify-center gap-2.5" aria-label="FIVE TO FIVE">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+            <circle cx="17" cy="17" r="15" stroke="#ffffff" strokeWidth="2" fill="none" />
+            <path d="M7 10.5c1.8-1.5 3.8-2.3 6.5-2.3s4.7.8 6.5 2.3" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+            <path d="M7 23.5c1.8 1.5 3.8 2.3 6.5 2.3s4.7-.8 6.5-2.3" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span className="tracking-[0.15em] font-semibold uppercase text-white text-[17px] leading-none whitespace-nowrap">
+            FIVE TO FIVE
+          </span>
         </Link>
         <div className="flex gap-1 items-center">
           <button className="p-2 cursor-pointer" aria-label="Buscar">
@@ -116,7 +123,16 @@ export function Nav() {
               className="w-4/5 max-w-sm bg-[#080808] h-full border-r border-white/5 p-6 flex flex-col overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-10">
-                <img src="/logo.png" alt="FIVE TO FIVE" className="h-8 w-auto" />
+                <Link to="/" onClick={() => setNav(false)} className="flex items-center gap-2.5" aria-label="FIVE TO FIVE">
+                  <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                    <circle cx="17" cy="17" r="15" stroke="#ffffff" strokeWidth="2" fill="none" />
+                    <path d="M7 10.5c1.8-1.5 3.8-2.3 6.5-2.3s4.7.8 6.5 2.3" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M7 23.5c1.8 1.5 3.8 2.3 6.5 2.3s4.7-.8 6.5-2.3" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  <span className="tracking-[0.15em] font-semibold uppercase text-white text-[17px] leading-none whitespace-nowrap">
+                    FIVE TO FIVE
+                  </span>
+                </Link>
                 <button onClick={() => setNav(false)} className="cursor-pointer">
                   <X size={24} className="text-white/60 hover:text-white" />
                 </button>
